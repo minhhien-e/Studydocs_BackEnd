@@ -8,7 +8,8 @@ import studydoc.vo.User;
 public class EntityMapper {
 
     public UserEntity voToUserEntity(User user) {
-        if (user == null) return null;
+        if (user == null)
+            return null;
 
         UserEntity entity = new UserEntity();
         entity.setId(user.getId());
@@ -33,7 +34,8 @@ public class EntityMapper {
     }
 
     public User entityToUserVO(UserEntity entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
 
         return new User(
                 entity.getId(),
@@ -53,7 +55,6 @@ public class EntityMapper {
                 entity.getFollowingCount(),
                 entity.getLikesCount(),
                 entity.getPostsCount(),
-                entity.getCommentsCount()
-        );
+                entity.getCommentsCount());
     }
 }
