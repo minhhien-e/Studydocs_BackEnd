@@ -5,5 +5,5 @@ import lombok.Value;
 @Value(staticConstructor = "commandOf")
 public class UpdateUserImage implements UserCommand {
     String id;
-    String avatarUrl;
+    Long mediaId;
 }

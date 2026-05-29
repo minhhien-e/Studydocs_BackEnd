@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class UpdateUserImageRequest {
-    private String avatarUrl;
+    private Long mediaId;
 }

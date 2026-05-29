@@ -13,13 +13,15 @@ import studydoc.vo.User;
 public class UpdateUserImageHandler implements CommandHandler<UpdateUserImage, UserDTO> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final MediaIntegrationService mediaIntegrationService;
 
     @Override
     public UserDTO handle(UpdateUserImage command) {
         User user = userRepository.findById(command.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID: " + command.getId()));
         
-        user.updateAvatar(command.getAvatarUrl());
+        String avatarUrl = mediaIntegrationService.getMediaUrl(command.getMediaId());
+        user.updateAvatar(avatarUrl);
         
         User savedUser = userRepository.save(user);
         return voMapper.toUserDTO(savedUser);
