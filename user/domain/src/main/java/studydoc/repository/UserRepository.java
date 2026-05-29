@@ -10,4 +10,5 @@ public interface UserRepository {
     void deleteById(String id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    java.util.Optional<User> findByUsername(String username);
 }

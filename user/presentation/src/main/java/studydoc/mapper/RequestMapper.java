@@ -12,17 +12,18 @@ import studydoc.request.UpdateUserImageRequest;
 
 @Component
 public class RequestMapper {
+    public studydoc.command.LoginUser toLoginUserCommand(studydoc.request.LoginRequest request) {
+        return studydoc.command.LoginUser.commandOf(
+                request.getUsername(),
+                request.getPassword()
+        );
+    }
     public RegisterUser toRegisterUserCommand(RegisterRequest request) {
         return RegisterUser.commandOf(
                 request.getFullName(),
                 request.getUsername(),
-                request.getEmail(),
-                request.getPhoneNumber(),
-                request.getAvatarUrl(),
-                request.getGender(),
-                request.getDateOfBirth(),
-                request.getAddress(),
-                request.getSchool()
+                request.getPassword(),
+                request.getEmail()
         );
     }
 

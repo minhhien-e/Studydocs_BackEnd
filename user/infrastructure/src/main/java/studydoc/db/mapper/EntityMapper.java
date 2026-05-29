@@ -11,7 +11,7 @@ public class EntityMapper {
     public UserEntity voToUserEntity(User user) {
         if (user == null) return null;
 
-        return new UserEntity(user.getId(),user.getFullName(),user.getUsername(),user.getEmail(),user.getPhoneNumber(),user.getAvatarUrl(),user.getGender(),user.getDateOfBirth(),user.getAddress(), user.getSchool(), user.getFollowersCount(), user.getFollowingCount(), user.getLikesCount(), user.getPostsCount(), user.getCommentsCount());
+        return new UserEntity(user.getId(),user.getFullName(),user.getUsername(),user.getPassword(),user.getEmail(),user.getPhoneNumber(),user.getAvatarUrl(),user.getGender(),user.getDateOfBirth(),user.getAddress(), user.getSchool(), user.getFollowersCount(), user.getFollowingCount(), user.getLikesCount(), user.getPostsCount(), user.getCommentsCount());
     }
 
     // Entity → VO
@@ -22,6 +22,7 @@ public class EntityMapper {
                 entity.getId(),
                 entity.getFullName(),
                 entity.getUsername(),
+                entity.getPassword(),
                 entity.getEmail(),
                 entity.getPhoneNumber(),
                 entity.getAvatarUrl(),

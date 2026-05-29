@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studydoc.bus.SimpleUserCommandBus;
 import studydoc.request.RegisterRequest;
+import studydoc.request.LoginRequest;
 import studydoc.response.ApiResponse;
 import studydoc.mapper.RequestMapper;
 
@@ -27,6 +28,14 @@ public class UserController {
         var result = commandBus.send(command);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(result)).getBody();
+    }
+    @CrossOrigin(origins = "*")
+    @PostMapping("/login")
+    public ApiResponse<?> login(
+            @Valid @RequestBody LoginRequest request) {
+        var command = mapper.toLoginUserCommand(request);
+        var result = commandBus.send(command);
+        return ApiResponse.success(result);
     }
 
     @GetMapping("/{id}")

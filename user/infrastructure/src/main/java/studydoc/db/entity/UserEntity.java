@@ -20,6 +20,7 @@ public class UserEntity {
 
     private String fullName;
     private String username;
+    private String password;
     private String email;
     private String phoneNumber;
     private String avatarUrl;
@@ -36,7 +37,7 @@ public class UserEntity {
     private int postsCount;
     private int commentsCount;
 
-    public UserEntity(String id, String fullName, String username, String email,
+    public UserEntity(String id, String fullName, String username, String password, String email,
                       String phoneNumber, String avatarUrl, String gender,
                       LocalDate dateOfBirth, String address, String school,
                       int followersCount, int followingCount, int likesCount,
@@ -44,6 +45,7 @@ public class UserEntity {
         this.id = id;
         this.fullName = fullName;
         this.username = username;
+        this.password = password;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.avatarUrl = avatarUrl;

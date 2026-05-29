@@ -8,4 +8,5 @@ import studydoc.db.entity.UserEntity;
 public interface UserMongoRepository extends MongoRepository<UserEntity, String> {
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    java.util.Optional<UserEntity> findByUsername(String username);
 }

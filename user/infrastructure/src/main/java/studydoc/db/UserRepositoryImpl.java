@@ -25,6 +25,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public java.util.Optional<User> findByUsername(String username) {
+        return repository.findByUsername(username).map(mapper::entityToUserVO);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
     }

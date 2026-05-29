@@ -28,8 +28,10 @@ public class User {
 
     private String fullName;
     
-    @NotBlank(message = "Username không được để trống")
     private String username;
+    
+    @NotBlank(message = "Password không được để trống")
+    private String password;
     
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
@@ -50,7 +52,7 @@ public class User {
     private int postsCount;
     private int commentsCount;
 
-    public User(String id, String fullName, String username, String email,
+    public User(String id, String fullName, String username, String password, String email,
                       String phoneNumber, String avatarUrl, String gender,
                       LocalDate dateOfBirth, String address, String school,
                       int followersCount, int followingCount, int likesCount,
@@ -58,6 +60,7 @@ public class User {
         this.id = id;
         this.fullName = fullName;
         this.setUsername(username);
+        this.password = password;
         this.setEmail(email);
         this.phoneNumber = phoneNumber;
         this.avatarUrl = avatarUrl;
