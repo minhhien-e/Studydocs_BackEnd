@@ -13,6 +13,7 @@ import studydoc.vo.User;
 public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
 
     @Override
     public UserDTO handle(UpdateUser command) {
@@ -22,7 +23,7 @@ public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
         user.updateProfile(
                 command.getFullName(),
                 command.getPhoneNumber(),
-                command.getAvatarUrl(),
+                command.getAvatarMediaId(),
                 command.getGender(),
                 command.getDateOfBirth(),
                 command.getAddress(),
@@ -35,7 +36,15 @@ public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
     }
 
     @Override
-    public Class<UpdateUser> commandType() {
+    public Class<UpdateUser> commandType(, savedUser);
+    }
+
+    @Override
+    public Class<UpdateUser> commandType(.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser);
+    }
+
+    @Override
+    public Class<UpdateUser> commandType(.getAvatarMediaId()) : null) {
         return UpdateUser.class;
     }
 }

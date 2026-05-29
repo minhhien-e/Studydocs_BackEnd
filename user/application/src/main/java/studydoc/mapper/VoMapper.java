@@ -6,13 +6,14 @@ import studydoc.vo.User;
 
 @Component
 public class VoMapper {
-    public UserDTO toUserDTO(User user) {
+
+    public UserDTO toUserDTO(User user, String avatarUrl) {
         return new UserDTO(user.getId()
                 , user.getFullName()
                 , user.getUsername()
                 , user.getEmail()
                 , user.getPhoneNumber()
-                , user.getAvatarUrl()
+                , avatarUrl
                 , user.getGender()
                 , user.getDateOfBirth()
                 , user.getAddress()
@@ -25,9 +26,9 @@ public class VoMapper {
                 , user.getCommentsCount());
     }
 
-    public studydoc.dto.OtherUserInfoDTO toOtherUserInfoDTO(User user) {
+    public studydoc.dto.OtherUserInfoDTO toOtherUserInfoDTO(User user, String avatarUrl) {
         return new studydoc.dto.OtherUserInfoDTO(
-                user.getAvatarUrl(),
+                avatarUrl,
                 user.getFullName(),
                 user.getSchool(),
                 user.getFollowersCount(),

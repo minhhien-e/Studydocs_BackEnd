@@ -22,7 +22,7 @@ public class UserEntity {
     private String username;
     private String email;
     private String phoneNumber;
-    private String avatarUrl;
+    private Long avatarMediaId;
     private String gender;
     private LocalDate dateOfBirth;
     private String address;

@@ -44,7 +44,7 @@ public class EntityMapper {
                 entity.getUsername(),
                 entity.getEmail(),
                 entity.getPhoneNumber(),
-                entity.getAvatarUrl(),
+                entity.getAvatarMediaId(),
                 entity.getGender(),
                 entity.getDateOfBirth(),
                 entity.getAddress(),

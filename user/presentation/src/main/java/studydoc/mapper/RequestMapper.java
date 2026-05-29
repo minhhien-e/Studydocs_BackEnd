@@ -15,7 +15,7 @@ public class RequestMapper {
                 id,
                 request.getFullName(),
                 request.getPhoneNumber(),
-                request.getAvatarUrl(),
+                request.getAvatarMediaId(),
                 request.getGender(),
                 request.getDateOfBirth(),
                 request.getAddress(),
