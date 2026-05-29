@@ -3,7 +3,7 @@ package studydocs.media.web.rest.controller;
 import studydocs.media.web.rest.dto.request.InitUploadRequest;
 import studydocs.media.web.rest.dto.response.InitUploadResponse;
 import studydocs.media.web.rest.dto.response.MediaStatusResponse;
-import studydocs.media.api.service.MediaService;
+import studydocs.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

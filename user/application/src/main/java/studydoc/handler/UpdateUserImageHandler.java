@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import studydoc.command.UpdateUserImage;
 import studydoc.dto.UserDTO;
+import studydoc.integration.MediaIntegrationService;
 import studydoc.mapper.VoMapper;
 import studydoc.repository.UserRepository;
 import studydoc.vo.User;
@@ -23,19 +24,11 @@ public class UpdateUserImageHandler implements CommandHandler<UpdateUserImage, U
         user.updateAvatar(command.getMediaId());
         
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
     }
 
     @Override
-    public Class<UpdateUserImage> commandType(, savedUser);
-    }
-
-    @Override
-    public Class<UpdateUserImage> commandType(.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser);
-    }
-
-    @Override
-    public Class<UpdateUserImage> commandType(.getAvatarMediaId()) : null) {
+    public Class<UpdateUserImage> commandType() {
         return UpdateUserImage.class;
     }
 }

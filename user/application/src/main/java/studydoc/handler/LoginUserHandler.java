@@ -13,6 +13,7 @@ import studydoc.vo.User;
 public class LoginUserHandler implements CommandHandler<LoginUser, UserDTO> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
 
     @Override
     public UserDTO handle(LoginUser command) {
@@ -23,7 +24,7 @@ public class LoginUserHandler implements CommandHandler<LoginUser, UserDTO> {
             throw new IllegalArgumentException("Username hoặc password không đúng");
         }
 
-        return voMapper.toUserDTO(user);
+        return voMapper.toUserDTO(user, user.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(user.getAvatarMediaId()) : null);
     }
 
     @Override

@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import studydocs.media.web.rest.dto.request.InitUploadRequest;
 import studydocs.media.web.rest.dto.response.InitUploadResponse;
 import studydocs.media.web.rest.dto.response.MediaStatusResponse;
-import studydocs.media.api.service.IdempotencyService;
-import studydocs.media.api.service.MediaService;
+import studydocs.media.service.IdempotencyService;
+import studydocs.media.service.MediaService;
 import studydocs.media.util.MediaTypeDetector;
 import studydocs.media.model.entity.MediaAsset;
 import studydocs.media.model.enums.AssetState;
 import studydocs.media.model.enums.HttpMethod;
 import studydocs.media.model.enums.MediaType;
-import studydocs.media.core.repository.MediaAssetRepository;
+import studydocs.media.repository.MediaAssetRepository;
 import studydocs.media.storage.StorageProvider;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @Transactional
     public InitUploadResponse initUpload(InitUploadRequest request) {
-        String key = "users/" + request.getOwnerId() + "/" + java.util.java.util.UUID.randomUUID() + "_" + request.getFileName();
+        String key = "users/" + request.getOwnerId() + "/" + java.util.UUID.randomUUID() + "_" + request.getFileName();
 
         MediaAsset asset = new MediaAsset();
         asset.setOriginalFilename(request.getFileName());

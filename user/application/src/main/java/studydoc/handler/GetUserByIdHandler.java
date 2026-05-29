@@ -13,12 +13,13 @@ import studydoc.vo.User;
 public class GetUserByIdHandler implements CommandHandler<GetUserById, UserDTO> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
 
     @Override
     public UserDTO handle(GetUserById command) {
         User user = userRepository.findById(command.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID: " + command.getId()));
-        return voMapper.toUserDTO(user);
+        return voMapper.toUserDTO(user, user.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(user.getAvatarMediaId()) : null);
     }
 
     @Override

@@ -14,11 +14,12 @@ import java.util.List;
 public class GetAllUsersHandler implements CommandHandler<GetAllUsers, List<UserDTO>> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
 
     @Override
     public List<UserDTO> handle(GetAllUsers command) {
         return userRepository.findAll().stream()
-                .map(voMapper::toUserDTO)
+                .map(u -> voMapper.toUserDTO(u, u.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(u.getAvatarMediaId()) : null))
                 .toList();
     }
 

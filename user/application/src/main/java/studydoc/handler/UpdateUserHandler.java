@@ -32,19 +32,11 @@ public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
         );
         
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
     }
 
     @Override
-    public Class<UpdateUser> commandType(, savedUser);
-    }
-
-    @Override
-    public Class<UpdateUser> commandType(.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser);
-    }
-
-    @Override
-    public Class<UpdateUser> commandType(.getAvatarMediaId()) : null) {
+    public Class<UpdateUser> commandType() {
         return UpdateUser.class;
     }
 }

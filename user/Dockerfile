@@ -15,13 +15,17 @@ COPY gradle gradle
 COPY build.gradle settings.gradle ./
 
 # Copy all source code modules
-COPY src src
+COPY application application
+COPY boot boot
+COPY domain domain
+COPY infrastructure infrastructure
+COPY presentation presentation
 
 # Make the wrapper executable and build the application using securely mounted secret
 RUN --mount=type=secret,id=GITHUB_TOKEN \
     --mount=type=cache,target=/root/.gradle \
     export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
-    chmod +x gradlew && ./gradlew build -x test
+    chmod +x gradlew && ./gradlew :boot:bootJar -x test
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre-alpine
@@ -32,12 +36,12 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 
 # Copy the built jar from the builder stage and assign ownership to the spring user
-COPY --from=builder --chown=spring:spring /app/build/libs/media-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder --chown=spring:spring /app/boot/build/libs/boot-0.0.1-SNAPSHOT.jar app.jar
 
 # Run the container as the non-root user
 USER spring:spring
 
-# Expose port based on application.yml (server.port=8080)
+# Expose port
 EXPOSE 8080
 
 # Run the application

@@ -19,12 +19,13 @@ public class RegisterUserHandler implements CommandHandler<RegisterUser,UserDTO>
     private final UserDomainService userDomainService;
     private final CommandMapper commandMapper;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
     @Override
     public UserDTO handle(RegisterUser command) {
         User user = commandMapper.commandToUser(command);
         userDomainService.verifyUserUniqueness(user);
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
     }
 
     @Override
