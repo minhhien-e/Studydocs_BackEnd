@@ -1,32 +1,15 @@
 package studydoc.mapper;
 
 import org.springframework.stereotype.Component;
-import studydoc.command.RegisterUser;
-import studydoc.request.RegisterRequest;
 import studydoc.command.UpdateUser;
-import studydoc.request.UpdateRequest;
-import studydoc.command.UpdateUserInfo;
-import studydoc.request.UpdateUserInfoRequest;
 import studydoc.command.UpdateUserImage;
+import studydoc.command.UpdateUserInfo;
+import studydoc.request.UpdateRequest;
 import studydoc.request.UpdateUserImageRequest;
+import studydoc.request.UpdateUserInfoRequest;
 
 @Component
 public class RequestMapper {
-    public studydoc.command.LoginUser toLoginUserCommand(studydoc.request.LoginRequest request) {
-        return studydoc.command.LoginUser.commandOf(
-                request.getUsername(),
-                request.getPassword()
-        );
-    }
-    public RegisterUser toRegisterUserCommand(RegisterRequest request) {
-        return RegisterUser.commandOf(
-                request.getFullName(),
-                request.getUsername(),
-                request.getPassword(),
-                request.getEmail()
-        );
-    }
-
     public UpdateUser toUpdateUserCommand(String id, UpdateRequest request) {
         return UpdateUser.commandOf(
                 id,

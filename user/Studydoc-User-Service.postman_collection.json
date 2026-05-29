@@ -1,0 +1,476 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Studydoc User Service",
+		"description": "# Studydoc User Microservice\n\n**Base URL:** `http://localhost:8090`\n**Keycloak:** `http://localhost:8180` — realm `studydocs-app`\n\n## Chuẩn bị\n1. `docker compose -f docker-compose-provider.yml up -d`\n2. Chạy Spring Boot (port 8090), load `.env`\n3. Cập nhật `clientSecret` nếu cần (Keycloak Admin → Clients → studydocs-app → Credentials)\n\n## Flow test nhanh (folder **00 - Quick Flow**)\n1. Register → 2. Login → 3. **Get Current User (me)** → 4. Các API business khác\n\n## Auth\n- Public: `/api/v1/public/auth/*` — không cần Bearer\n- Login trả `accessToken`, `refreshToken`, `expiresIn`\n\n## Business\n- Cần header: `Authorization: Bearer {{accessToken}}`\n- **GET /users/me** — giải token (Keycloak userinfo) → lấy `sub` → tra Mongo `keycloakId` → trả UserDTO + tự lưu `userId`\n- Các API còn lại dùng `{{userId}}` (Mongo id)\n\n## Response format\n```json\n{ \"statusCode\": 200, \"errorCode\": null, \"data\": { ... } }\n```",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8090" },
+		{ "key": "keycloakUrl", "value": "http://localhost:8180" },
+		{ "key": "realm", "value": "studydocs-app" },
+		{ "key": "clientId", "value": "studydocs-app" },
+		{ "key": "clientSecret", "value": "your-client-secret-here" },
+		{ "key": "username", "value": "testuser01" },
+		{ "key": "password", "value": "12345678" },
+		{ "key": "accessToken", "value": "" },
+		{ "key": "refreshToken", "value": "" },
+		{ "key": "userId", "value": "" },
+		{ "key": "keycloakSub", "value": "" },
+		{ "key": "googleRedirectUri", "value": "studydocs://callback" },
+		{ "key": "googleCode", "value": "" },
+		{ "key": "googleCodeVerifier", "value": "" }
+	],
+	"item": [
+		{
+			"name": "00 - Quick Flow",
+			"description": "Chạy lần lượt từ trên xuống. Đổi `username` nếu Register báo trùng.",
+			"item": [
+				{
+					"name": "1. Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Register OK', () => pm.response.to.have.status(200));",
+									"const json = pm.response.json();",
+									"pm.expect(json.statusCode).to.eql(200);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"fullName\": \"Test User\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/register"
+					},
+					"response": []
+				},
+				{
+					"name": "2. Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Login OK', () => pm.response.to.have.status(200));",
+									"const json = pm.response.json();",
+									"pm.collectionVariables.set('accessToken', json.data.accessToken);",
+									"pm.collectionVariables.set('refreshToken', json.data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/login"
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get Current User (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Get me OK', () => pm.response.to.have.status(200));",
+									"const json = pm.response.json();",
+									"if (json.data?.id) pm.collectionVariables.set('userId', json.data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+						},
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users/me"
+					},
+					"response": []
+				},
+				{
+					"name": "4. Get User By Id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+						},
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth (Public)",
+			"description": "Không cần Bearer token.",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"fullName\": \"Test User\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/register",
+						"description": "Tạo user Keycloak + MongoDB profile."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const j = pm.response.json();",
+									"  pm.collectionVariables.set('accessToken', j.data.accessToken);",
+									"  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const j = pm.response.json();",
+									"  pm.collectionVariables.set('accessToken', j.data.accessToken);",
+									"  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/refresh-token"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/logout"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"{{username}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/forgot-password",
+						"description": "User cần có email trên Keycloak."
+					},
+					"response": []
+				},
+				{
+					"name": "Google Login (get auth URL)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  console.log(pm.response.json().data.authorizationUrl);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"redirectUri\": \"{{googleRedirectUri}}\",\n  \"codeChallenge\": \"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM\",\n  \"codeChallengeMethod\": \"S256\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/google/login"
+					},
+					"response": []
+				},
+				{
+					"name": "Google Callback",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const j = pm.response.json();",
+									"  pm.collectionVariables.set('accessToken', j.data.accessToken);",
+									"  pm.collectionVariables.set('refreshToken', j.data.refreshToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"{{googleCode}}\",\n  \"codeVerifier\": \"{{googleCodeVerifier}}\",\n  \"redirectUri\": \"{{googleRedirectUri}}\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/public/auth/google/callback",
+						"description": "Set googleCode + googleCodeVerifier sau OAuth redirect."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users (Business)",
+			"description": "Cần Bearer token. Khuyến nghị: Login → GET /me để lấy userId.",
+			"auth": {
+				"type": "bearer",
+				"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+			},
+			"item": [
+				{
+					"name": "Get Current User (me)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"const json = pm.response.json();",
+									"if (json.data?.id) pm.collectionVariables.set('userId', json.data.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users/me",
+						"description": "Bearer token → Keycloak userinfo (sub) → Mongo findByKeycloakId → UserDTO."
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 && pm.response.json().data?.length) {",
+									"  pm.collectionVariables.set('userId', pm.response.json().data[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Id",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}",
+						"description": "userId = Mongo document id (lấy từ /me)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Other User Info",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}/other",
+						"description": "Public profile: avatar, fullName, school, social counts."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Updated Name\",\n  \"phoneNumber\": \"0901234567\",\n  \"avatarUrl\": \"https://example.com/avatar.png\",\n  \"gender\": \"male\",\n  \"dateOfBirth\": \"2000-01-15\",\n  \"address\": \"Ha Noi\",\n  \"school\": \"HUST\",\n  \"isPrivate\": false\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Info",
+					"request": {
+						"method": "PUT",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"Updated Info\",\n  \"phoneNumber\": \"0909999888\",\n  \"gender\": \"female\",\n  \"dateOfBirth\": \"1999-05-20\",\n  \"address\": \"Ho Chi Minh\",\n  \"school\": \"UIT\",\n  \"isPrivate\": true\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}/info"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Image",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"avatarUrl\": \"https://example.com/new-avatar.png\"\n}"
+						},
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}/image"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"url": "{{baseUrl}}/api/v1/users/{{userId}}",
+						"description": "Xóa Mongo profile (không xóa Keycloak user)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Keycloak (reference)",
+			"description": "Gọi trực tiếp Keycloak — debug token / userinfo.",
+			"item": [
+				{
+					"name": "OIDC Discovery",
+					"request": {
+						"method": "GET",
+						"url": "{{keycloakUrl}}/realms/{{realm}}/.well-known/openid-configuration"
+					},
+					"response": []
+				},
+				{
+					"name": "Token (password grant)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const j = pm.response.json();",
+									"  pm.collectionVariables.set('accessToken', j.access_token);",
+									"  pm.collectionVariables.set('refreshToken', j.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{ "key": "grant_type", "value": "password" },
+								{ "key": "client_id", "value": "{{clientId}}" },
+								{ "key": "client_secret", "value": "{{clientSecret}}" },
+								{ "key": "username", "value": "{{username}}" },
+								{ "key": "password", "value": "{{password}}" },
+								{ "key": "scope", "value": "openid offline_access" }
+							]
+						},
+						"url": "{{keycloakUrl}}/realms/{{realm}}/protocol/openid-connect/token"
+					},
+					"response": []
+				},
+				{
+					"name": "UserInfo (giải token → sub)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"  const j = pm.response.json();",
+									"  if (j.sub) pm.collectionVariables.set('keycloakSub', j.sub);",
+									"  console.log('sub (keycloakId):', j.sub);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+						},
+						"method": "GET",
+						"url": "{{keycloakUrl}}/realms/{{realm}}/protocol/openid-connect/userinfo",
+						"description": "Cùng API backend dùng trong /me. sub = keycloakId trong Mongo."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

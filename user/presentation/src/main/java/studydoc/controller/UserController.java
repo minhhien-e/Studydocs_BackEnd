@@ -2,38 +2,21 @@ package studydoc.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import studydoc.bus.SimpleUserCommandBus;
-import studydoc.request.RegisterRequest;
-import studydoc.request.LoginRequest;
-import studydoc.response.ApiResponse;
 import studydoc.mapper.RequestMapper;
+import studydoc.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 public class UserController {
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
     private final SimpleUserCommandBus commandBus;
     private final RequestMapper mapper;
 
-    @PostMapping("/register")
-    public ApiResponse<?> register(
-            @Valid @RequestBody RegisterRequest request) {
-        var command = mapper.toRegisterUserCommand(request);
-        var result = commandBus.send(command);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(result)).getBody();
-    }
-    @CrossOrigin(origins = "*")
-    @PostMapping("/login")
-    public ApiResponse<?> login(
-            @Valid @RequestBody LoginRequest request) {
-        var command = mapper.toLoginUserCommand(request);
+    @GetMapping("/me")
+    public ApiResponse<?> getCurrentUser() {
+        var command = studydoc.command.GetCurrentUser.commandOf();
         var result = commandBus.send(command);
         return ApiResponse.success(result);
     }
