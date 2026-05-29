@@ -21,6 +21,15 @@ public class UserController {
         return ApiResponse.success(result);
     }
 
+    @CrossOrigin(origins = "*")
+    @PostMapping("/login")
+    public ApiResponse<?> login(
+            @Valid @RequestBody LoginRequest request) {
+        var command = mapper.toLoginUserCommand(request);
+        var result = commandBus.send(command);
+        return ApiResponse.success(result);
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<?> getUserById(@PathVariable String id) {
         var command = studydoc.command.GetUserById.commandOf(id);

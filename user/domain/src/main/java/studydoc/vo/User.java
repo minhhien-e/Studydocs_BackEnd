@@ -26,10 +26,20 @@ public class User {
 
     private String id;
     private String keycloakId;
-    private String fullName;
+    private String fullName;<<<<<<<HEAD
 
-    @NotBlank(message = "Username không được để trống")
+    @NotBlank(message="Username không được để trống")
     private String username;
+
+    =======
+
+    private String username;
+
+    @NotBlank(message = "Password không được để trống")
+    private String password;
+
+    @NotBlank(message = "Email không được để trống")
+>>>>>>> 3ade7fc (feture: user login tempt)
 
     @Email(message = "Email không hợp lệ")
     private String email;
@@ -59,6 +69,7 @@ public class User {
         this.keycloakId = keycloakId;
         this.fullName = fullName;
         this.setUsername(username);
+        this.password = password;
         this.setEmail(email);
         this.phoneNumber = phoneNumber;
         this.avatarUrl = avatarUrl;

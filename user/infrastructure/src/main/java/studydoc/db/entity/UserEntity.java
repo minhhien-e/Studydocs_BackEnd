@@ -20,6 +20,7 @@ public class UserEntity {
     private String keycloakId;
     private String fullName;
     private String username;
+    private String password;
     private String email;
     private String phoneNumber;
     private String avatarUrl;

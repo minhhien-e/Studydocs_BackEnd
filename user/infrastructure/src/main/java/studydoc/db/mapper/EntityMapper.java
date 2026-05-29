@@ -42,6 +42,7 @@ public class EntityMapper {
                 entity.getKeycloakId(),
                 entity.getFullName(),
                 entity.getUsername(),
+                entity.getPassword(),
                 entity.getEmail(),
                 entity.getPhoneNumber(),
                 entity.getAvatarUrl(),
