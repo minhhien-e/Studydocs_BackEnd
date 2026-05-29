@@ -38,14 +38,12 @@ public class KeycloakAdminService implements KeycloakAdminPort {
                 nameParts.lastName(),
                 username + "@studydocs.local",
                 List.of(),
-                List.of(new KeycloakCredentialDto("password", password, false))
-        );
+                List.of(new KeycloakCredentialDto("password", password, false)));
 
         ResponseEntity<Void> response = apiClient.postJsonForEntity(
                 properties.adminUsersEndpoint(),
                 adminToken,
-                request
-        );
+                request);
 
         String location = response.getHeaders().getFirst("Location");
         if (!StringUtils.hasText(location)) {
@@ -59,8 +57,7 @@ public class KeycloakAdminService implements KeycloakAdminPort {
         apiClient.putJsonNoContent(
                 properties.adminUserEndpoint(keycloakUserId),
                 adminToken,
-                updateRequest
-        );
+                updateRequest);
 
         assignDefaultRegistrationRole(keycloakUserId);
 
@@ -89,8 +86,7 @@ public class KeycloakAdminService implements KeycloakAdminPort {
         KeycloakAdminUserDto[] users = apiClient.getJson(
                 properties.adminUsersEndpoint() + "?username=" + username + "&exact=true",
                 adminToken,
-                KeycloakAdminUserDto[].class
-        );
+                KeycloakAdminUserDto[].class);
         if (users == null || users.length == 0) {
             return Optional.empty();
         }
@@ -103,16 +99,14 @@ public class KeycloakAdminService implements KeycloakAdminPort {
         apiClient.putJsonNoContent(
                 properties.adminUserEndpoint(keycloakUserId) + "/execute-actions-email",
                 adminToken,
-                List.of("UPDATE_PASSWORD")
-        );
+                List.of("UPDATE_PASSWORD"));
     }
 
     private String getAdminAccessToken() {
         KeycloakTokenResponseDto token = apiClient.postForm(
                 properties.tokenEndpoint(),
                 apiClient.clientCredentialsForm(),
-                KeycloakTokenResponseDto.class
-        );
+                KeycloakTokenResponseDto.class);
         return token.getAccessToken();
     }
 
@@ -120,13 +114,11 @@ public class KeycloakAdminService implements KeycloakAdminPort {
         KeycloakRoleDto role = apiClient.getJson(
                 properties.adminRealmRoleEndpoint(roleName),
                 adminToken,
-                KeycloakRoleDto.class
-        );
+                KeycloakRoleDto.class);
         apiClient.postJsonNoContent(
                 properties.adminUserRealmRoleMappingsEndpoint(keycloakUserId),
                 adminToken,
-                List.of(role)
-        );
+                List.of(role));
     }
 
     private NameParts resolveNameParts(String username, String fullName) {
@@ -142,8 +134,7 @@ public class KeycloakAdminService implements KeycloakAdminPort {
 
         return new NameParts(
                 trimmed.substring(0, lastSpace).trim(),
-                trimmed.substring(lastSpace + 1).trim()
-        );
+                trimmed.substring(lastSpace + 1).trim());
     }
 
     private record NameParts(String firstName, String lastName) {

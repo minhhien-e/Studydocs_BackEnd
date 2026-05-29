@@ -69,7 +69,6 @@ public class User {
         this.keycloakId = keycloakId;
         this.fullName = fullName;
         this.setUsername(username);
-        this.password = password;
         this.setEmail(email);
         this.phoneNumber = phoneNumber;
         this.avatarUrl = avatarUrl;
