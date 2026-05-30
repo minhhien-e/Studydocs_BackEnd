@@ -3,6 +3,7 @@ package studydoc.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import studydoc.port.KeycloakAdminPort;
 import studydoc.port.KeycloakUserInfo;
 import studydoc.repository.UserRepository;
 import studydoc.vo.User;
@@ -11,6 +12,7 @@ import studydoc.vo.User;
 @RequiredArgsConstructor
 public class UserProfileSyncService {
     private final UserRepository userRepository;
+    private final KeycloakAdminPort keycloakAdminPort;
 
     public void ensureProfileExists(KeycloakUserInfo userInfo) {
         if (userRepository.findByKeycloakId(userInfo.keycloakId()).isPresent()) {
@@ -26,6 +28,7 @@ public class UserProfileSyncService {
         if (StringUtils.hasText(userInfo.email())) {
             user.setEmail(userInfo.email());
         }
+        keycloakAdminPort.assignDefaultRegistrationRole(userInfo.keycloakId());
         userRepository.save(user);
     }
 }

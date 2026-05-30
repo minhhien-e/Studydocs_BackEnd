@@ -10,6 +10,7 @@ import studydoc.keycloak.dto.KeycloakAdminUserDto;
 import studydoc.keycloak.dto.KeycloakCreateUserRequestDto;
 import studydoc.keycloak.dto.KeycloakCredentialDto;
 import studydoc.keycloak.dto.KeycloakTokenResponseDto;
+import studydoc.keycloak.dto.KeycloakRoleDto;
 import studydoc.keycloak.dto.KeycloakUpdateUserRequestDto;
 import studydoc.keycloak.mapper.KeycloakMapper;
 import studydoc.port.KeycloakAdminPort;
@@ -61,7 +62,19 @@ public class KeycloakAdminService implements KeycloakAdminPort {
                 updateRequest
         );
 
+        assignDefaultRegistrationRole(keycloakUserId);
+
         return keycloakUserId;
+    }
+
+    @Override
+    public void assignDefaultRegistrationRole(String keycloakUserId) {
+        String roleName = properties.getDefaultRegistrationRole();
+        if (!StringUtils.hasText(roleName)) {
+            return;
+        }
+        String adminToken = getAdminAccessToken();
+        assignRealmRole(adminToken, keycloakUserId, roleName);
     }
 
     @Override
@@ -101,6 +114,19 @@ public class KeycloakAdminService implements KeycloakAdminPort {
                 KeycloakTokenResponseDto.class
         );
         return token.getAccessToken();
+    }
+
+    private void assignRealmRole(String adminToken, String keycloakUserId, String roleName) {
+        KeycloakRoleDto role = apiClient.getJson(
+                properties.adminRealmRoleEndpoint(roleName),
+                adminToken,
+                KeycloakRoleDto.class
+        );
+        apiClient.postJsonNoContent(
+                properties.adminUserRealmRoleMappingsEndpoint(keycloakUserId),
+                adminToken,
+                List.of(role)
+        );
     }
 
     private NameParts resolveNameParts(String username, String fullName) {
