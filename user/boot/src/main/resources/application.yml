@@ -25,6 +25,7 @@ keycloak:
   realm: ${KEYCLOAK_REALM:studydocs-app}
   client-id: ${KEYCLOAK_CLIENT_ID:studydocs-app}
   client-secret: ${KEYCLOAK_CLIENT_SECRET}
+  default-registration-role: ${KEYCLOAK_DEFAULT_REGISTRATION_ROLE:CUSTOMER}
 
 app:
   cors:

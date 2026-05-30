@@ -12,6 +12,7 @@ public class KeycloakProperties {
     private String realm;
     private String clientId;
     private String clientSecret;
+    private String defaultRegistrationRole = "CUSTOMER";
 
     public String realmBasePath() {
         return serverUrl + "/realms/" + realm;
@@ -39,5 +40,13 @@ public class KeycloakProperties {
 
     public String adminUserEndpoint(String keycloakUserId) {
         return adminUsersEndpoint() + "/" + keycloakUserId;
+    }
+
+    public String adminRealmRoleEndpoint(String roleName) {
+        return serverUrl + "/admin/realms/" + realm + "/roles/" + roleName;
+    }
+
+    public String adminUserRealmRoleMappingsEndpoint(String keycloakUserId) {
+        return adminUserEndpoint(keycloakUserId) + "/role-mappings/realm";
     }
 }
