@@ -25,7 +25,7 @@ public class RegisterUserHandler implements CommandHandler<RegisterUser,UserDTO>
         User user = commandMapper.commandToUser(command);
         userDomainService.verifyUserUniqueness(user);
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarId()) : savedUser.getAvatarUrl());
     }
 
     @Override

@@ -35,7 +35,8 @@ public class User {
     private String email;
 
     private String phoneNumber;
-    private Long avatarMediaId;
+    private Long avatarId;
+    private String avatarUrl;
     private String gender;
     private LocalDate dateOfBirth;
     private String address;
@@ -50,7 +51,7 @@ public class User {
     private int commentsCount;
 
     public User(String id, String keycloakId, String fullName, String username, String email,
-            String phoneNumber, String avatarUrl, String gender,
+            String phoneNumber, Long avatarId, String avatarUrl, String gender,
             LocalDate dateOfBirth, String address, String school,
             boolean isprivate, Instant createdAt,
             int followersCount, int followingCount, int likesCount,
@@ -61,7 +62,8 @@ public class User {
         this.setUsername(username);
         this.setEmail(email);
         this.phoneNumber = phoneNumber;
-        this.avatarMediaId = avatarMediaId;
+        this.avatarId = avatarId;
+        this.avatarUrl = avatarUrl;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
@@ -81,6 +83,7 @@ public class User {
                 keycloakId,
                 fullName,
                 username,
+                null,
                 null,
                 null,
                 null,
@@ -148,7 +151,9 @@ public class User {
         this.isprivate = isPrivate;
     }
 
-    public void updateAvatar(String avatarUrl) {
+    public void updateAvatar(Long avatarId, String avatarUrl) {
+        if (avatarId != null)
+            this.avatarId = avatarId;
         if (avatarUrl != null)
             this.avatarUrl = avatarUrl;
     }

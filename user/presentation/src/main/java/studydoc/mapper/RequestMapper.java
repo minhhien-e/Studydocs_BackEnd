@@ -15,7 +15,7 @@ public class RequestMapper {
                 id,
                 request.getFullName(),
                 request.getPhoneNumber(),
-                request.getAvatarMediaId(),
+                request.getAvatarUrl(),
                 request.getGender(),
                 request.getDateOfBirth(),
                 request.getAddress(),
@@ -38,6 +38,7 @@ public class RequestMapper {
     public UpdateUserImage toUpdateUserImageCommand(String id, UpdateUserImageRequest request) {
         return UpdateUserImage.commandOf(
                 id,
+                request.getAvatarId(),
                 request.getAvatarUrl());
     }
 }

@@ -21,10 +21,10 @@ public class UpdateUserImageHandler implements CommandHandler<UpdateUserImage, U
         User user = userRepository.findById(command.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy người dùng với ID: " + command.getId()));
         
-        user.updateAvatar(command.getMediaId());
+        user.updateAvatar(command.getAvatarId(), command.getAvatarUrl());
         
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarId()) : savedUser.getAvatarUrl());
     }
 
     @Override

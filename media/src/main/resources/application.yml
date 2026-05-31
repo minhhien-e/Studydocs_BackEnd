@@ -3,6 +3,8 @@ server:
     context-path: /api/v1
 
 spring:
+  application:
+    name: media-service
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/studydocs_media_db}

@@ -24,7 +24,7 @@ public class LoginUserHandler implements CommandHandler<LoginUser, UserDTO> {
             throw new IllegalArgumentException("Username hoặc password không đúng");
         }
 
-        return voMapper.toUserDTO(user, user.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(user.getAvatarMediaId()) : null);
+        return voMapper.toUserDTO(user, user.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(user.getAvatarId()) : user.getAvatarUrl());
     }
 
     @Override

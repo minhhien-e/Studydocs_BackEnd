@@ -19,7 +19,7 @@ public class GetAllUsersHandler implements CommandHandler<GetAllUsers, List<User
     @Override
     public List<UserDTO> handle(GetAllUsers command) {
         return userRepository.findAll().stream()
-                .map(u -> voMapper.toUserDTO(u, u.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(u.getAvatarMediaId()) : null))
+                .map(u -> voMapper.toUserDTO(u, u.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(u.getAvatarId()) : u.getAvatarUrl()))
                 .toList();
     }
 

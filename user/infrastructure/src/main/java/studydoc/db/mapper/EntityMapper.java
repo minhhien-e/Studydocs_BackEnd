@@ -18,6 +18,7 @@ public class EntityMapper {
         entity.setUsername(user.getUsername());
         entity.setEmail(user.getEmail());
         entity.setPhoneNumber(user.getPhoneNumber());
+        entity.setAvatarId(user.getAvatarId());
         entity.setAvatarUrl(user.getAvatarUrl());
         entity.setGender(user.getGender());
         entity.setDateOfBirth(user.getDateOfBirth());
@@ -44,7 +45,8 @@ public class EntityMapper {
                 entity.getUsername(),
                 entity.getEmail(),
                 entity.getPhoneNumber(),
-                entity.getAvatarMediaId(),
+                entity.getAvatarId(),
+                entity.getAvatarUrl(),
                 entity.getGender(),
                 entity.getDateOfBirth(),
                 entity.getAddress(),

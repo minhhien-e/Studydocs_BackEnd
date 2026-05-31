@@ -23,7 +23,7 @@ public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
         user.updateProfile(
                 command.getFullName(),
                 command.getPhoneNumber(),
-                command.getAvatarMediaId(),
+                command.getAvatarUrl(),
                 command.getGender(),
                 command.getDateOfBirth(),
                 command.getAddress(),
@@ -32,7 +32,7 @@ public class UpdateUserHandler implements CommandHandler<UpdateUser, UserDTO> {
         );
         
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser, savedUser.getAvatarMediaId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarMediaId()) : null);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarId()) : savedUser.getAvatarUrl());
     }
 
     @Override

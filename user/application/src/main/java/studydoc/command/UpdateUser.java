@@ -8,7 +8,7 @@ public class UpdateUser implements UserCommand {
     String id;
     String fullName;
     String phoneNumber;
-    Long avatarMediaId;
+    String avatarUrl;
     String gender;
     LocalDate dateOfBirth;
     String address;
