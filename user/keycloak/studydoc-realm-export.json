@@ -56,6 +56,24 @@
         "attributes": {}
       },
       {
+        "id": "a3757b61-fea0-47f7-931d-2c7e71bd6263",
+        "name": "ADMIN",
+        "description": "Quản lý hệ thống",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "36c1ba83-8f54-4351-a571-6017e2f73567",
+        "attributes": {}
+      },
+      {
+        "id": "212fc046-c2cd-4ea5-a3ba-95cb763c0406",
+        "name": "CUSTOMER",
+        "description": "Người truy cập",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "36c1ba83-8f54-4351-a571-6017e2f73567",
+        "attributes": {}
+      },
+      {
         "id": "517caa66-e3c9-4d67-afce-e1165237b9d6",
         "name": "default-roles-studydocs-app",
         "description": "${role_default-roles}",
@@ -299,26 +317,7 @@
           "attributes": {}
         }
       ],
-      "studydocs-app": [
-        {
-          "id": "a3757b61-fea0-47f7-931d-2c7e71bd6263",
-          "name": "ADMIN",
-          "description": "Quản lý hệ thống",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "1377d8ef-5663-4c67-b714-349801a8f148",
-          "attributes": {}
-        },
-        {
-          "id": "212fc046-c2cd-4ea5-a3ba-95cb763c0406",
-          "name": "CUSTOMER",
-          "description": "Người truy cập",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "1377d8ef-5663-4c67-b714-349801a8f148",
-          "attributes": {}
-        }
-      ],
+      "studydocs-app": [],
       "security-admin-console": [],
       "admin-cli": [],
       "account-console": [],
@@ -490,7 +489,9 @@
       ],
       "clientRoles": {
         "realm-management": [
-          "manage-users"
+          "realm-admin",
+          "manage-users",
+          "view-users"
         ]
       },
       "notBefore": 0,
@@ -819,7 +820,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "studydocs-secret",
       "redirectUris": [
         "http://localhost:3000/authentication"
       ],

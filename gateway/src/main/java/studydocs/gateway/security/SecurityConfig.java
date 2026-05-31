@@ -53,7 +53,7 @@ public class SecurityConfig {
             @Value("${CORS_ALLOWED_ORIGINS}") String allowedOrigins,
             @Value("${CORS_ALLOWED_HEADERS}") String allowedHeaders) {
         org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.Arrays.asList(allowedOrigins.split(",")));
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(java.util.Arrays.asList(allowedHeaders.split(",")));
         configuration.setAllowCredentials(true);

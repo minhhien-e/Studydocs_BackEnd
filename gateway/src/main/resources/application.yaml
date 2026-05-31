@@ -11,7 +11,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${AUTH_SERVER_URL}/.well-known/jwks.json
+          jwk-set-uri: ${AUTH_SERVER_URL}/protocol/openid-connect/certs
   data:
     redis:
       host: ${REDIS_HOST}
@@ -21,24 +21,45 @@ spring:
       server:
         webflux:
           routes:
-            - id: user-service
-              uri: ${USER_SERVICE_URL:http://localhost:8081}
+            - id: user-service-main
+              uri: ${USER_SERVICE_URL}
               predicates:
-                - Path=/users/**, /auth/**, /documents/**, /reviews/**, /academics/**, /follows/**
+                - Path=/users/**
               filters:
-                - 'RewritePath=/(?<segment>.*), /api/v1/$\{segment}'
                 - name: RequestRateLimiter
                   args:
                     key-resolver: "#{@ipKeyResolver}"
-                    redis-rate-limiter.replenishRate: 10
-                    redis-rate-limiter.burstCapacity: 20
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /users/(?<segment>.*)
+                    replacement: /api/v1/users/$\{segment}
+                    
+            - id: user-service-auth
+              uri: ${USER_SERVICE_URL}
+              predicates:
+                - Path=/auth/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /auth/(?<segment>.*)
+                    replacement: /api/v1/$\{segment}
 
             - id: media-service
-              uri: ${MEDIA_SERVICE_URL:http://localhost:8082}
+              uri: ${MEDIA_SERVICE_URL}
               predicates:
                 - Path=/media/**
               filters:
-                - 'RewritePath=/(?<segment>.*), /api/v1/$\{segment}'
+                - name: RewritePath
+                  args:
+                    regexp: /media/?(?<segment>.*)
+                    replacement: /api/v1/$\{segment}
 
           forwarded:
             enabled: true

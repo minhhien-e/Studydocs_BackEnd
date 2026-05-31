@@ -1,8 +1,5 @@
 package studydoc.security;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import studydoc.port.AuthenticatedUserAccessor;
 
@@ -12,10 +9,10 @@ import java.util.Optional;
 public class SpringSecurityAuthenticatedUserAccessor implements AuthenticatedUserAccessor {
 
     @Override
-    public Optional<String> getBearerToken() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
-            return Optional.of(jwtAuthentication.getToken().getTokenValue());
+    public Optional<String> getUserId() {
+        org.springframework.security.core.Authentication authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof String userId) {
+            return Optional.of(userId);
         }
         return Optional.empty();
     }

@@ -2,7 +2,6 @@ package studydoc.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +19,7 @@ import studydoc.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/public/auth")
-@CrossOrigin(origins = "*")
+@RequestMapping("/public/auth")
 public class PublicAuthController {
     private final SimpleUserCommandBus commandBus;
     private final AuthRequestMapper authRequestMapper;

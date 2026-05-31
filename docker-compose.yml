@@ -91,6 +91,19 @@ services:
       - user-service
       - media-service
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.0
+    container_name: studydocs_keycloak
+    <<: *common-service
+    ports:
+      - "8180:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./user/keycloak/studydoc-realm-export.json:/opt/keycloak/data/import/studydoc-realm-export.json
+    command: start-dev --import-realm
+
   user-service:
     <<: *java-service
     image: studydocs-user-service:latest
@@ -102,8 +115,12 @@ services:
       SERVER_PORT: 8080
       MONGO_URI: mongodb://admin:123456@mongo:27017/studydocs_user_db?authSource=admin
       app.media-service.url: http://media-service:8080
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_CLIENT_SECRET: studydocs-secret
     depends_on:
       <<: [*mongo-dep]
+      keycloak:
+        condition: service_started
 
   media-service:
     <<: *java-service

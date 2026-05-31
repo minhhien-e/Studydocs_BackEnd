@@ -1,4 +1,5 @@
 server:
+  port: ${SERVER_PORT:8090}
   servlet:
     context-path: /api/v1
 
@@ -13,16 +14,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://${MONGO_USERNAME:admin}:${MONGO_PASSWORD:password}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DB:user_service_db}?authSource=admin
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: ${KEYCLOAK_SERVER_URL:http://localhost:8180}/realms/${KEYCLOAK_REALM:studydocs-app}
-
-server:
-  port: 8090
+      uri: ${MONGO_URI:mongodb://${MONGO_USERNAME:admin}:${MONGO_PASSWORD:password}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DB:user_service_db}?authSource=admin}
 
 keycloak:
   server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8180}

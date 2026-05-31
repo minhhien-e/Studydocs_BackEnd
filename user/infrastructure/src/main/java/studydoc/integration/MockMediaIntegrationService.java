@@ -2,7 +2,6 @@ package studydoc.integration;
 
 import org.springframework.stereotype.Service;
 
-@Service
 public class MockMediaIntegrationService implements MediaIntegrationService {
     @Override
     public String getMediaUrl(Long mediaId) {
