@@ -11,8 +11,8 @@ import studydoc.vo.User;
 @Service
 @RequiredArgsConstructor
 public class UserProfileSyncService {
-    private final UserRepository userRepository;<<<<<<<HEAD
-    private final KeycloakAdminPort keycloakAdminPort;=======>>>>>>>8f 9af89 (add keycloak and refactor)
+    private final UserRepository userRepository;
+    private final KeycloakAdminPort keycloakAdminPort;
 
     public void ensureProfileExists(KeycloakUserInfo userInfo) {
         if (userRepository.findByKeycloakId(userInfo.keycloakId()).isPresent()) {

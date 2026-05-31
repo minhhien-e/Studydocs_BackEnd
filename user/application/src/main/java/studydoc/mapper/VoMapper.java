@@ -8,22 +8,10 @@ import studydoc.vo.User;
 public class VoMapper {
 
     public UserDTO toUserDTO(User user, String avatarUrl) {
-        return new UserDTO(user.getId()
-                , user.getFullName()
-                , user.getUsername()
-                , user.getEmail()
-                , user.getPhoneNumber()
-                , avatarUrl
-                , user.getGender()
-                , user.getDateOfBirth()
-                , user.getAddress()
-                , user.getSchool()
-                , user.isIsprivate()
-                , user.getFollowersCount()
-                , user.getFollowingCount()
-                , user.getLikesCount()
-                , user.getPostsCount()
-                , user.getCommentsCount());
+        return new UserDTO(user.getId(), user.getFullName(), user.getUsername(), user.getEmail(), user.getPhoneNumber(),
+                avatarUrl, user.getGender(), user.getDateOfBirth(), user.getAddress(), user.getSchool(),
+                user.isIsprivate(), user.getFollowersCount(), user.getFollowingCount(), user.getLikesCount(),
+                user.getPostsCount(), user.getCommentsCount());
     }
 
     public studydoc.dto.OtherUserInfoDTO toOtherUserInfoDTO(User user, String avatarUrl) {
@@ -35,7 +23,6 @@ public class VoMapper {
                 user.getFollowingCount(),
                 user.getLikesCount(),
                 user.getPostsCount(),
-                user.getCommentsCount()
-        );
+                user.getCommentsCount());
     }
 }
