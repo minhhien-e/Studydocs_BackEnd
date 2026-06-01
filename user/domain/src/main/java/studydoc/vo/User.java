@@ -35,6 +35,7 @@ public class User {
     private String email;
 
     private String phoneNumber;
+    private Long avatarId;
     private String avatarUrl;
     private String gender;
     private LocalDate dateOfBirth;
@@ -50,17 +51,18 @@ public class User {
     private int commentsCount;
 
     public User(String id, String keycloakId, String fullName, String username, String email,
-                String phoneNumber, String avatarUrl, String gender,
-                LocalDate dateOfBirth, String address, String school,
-                boolean isprivate, Instant createdAt,
-                int followersCount, int followingCount, int likesCount,
-                int postsCount, int commentsCount) {
+            String phoneNumber, Long avatarId, String avatarUrl, String gender,
+            LocalDate dateOfBirth, String address, String school,
+            boolean isprivate, Instant createdAt,
+            int followersCount, int followingCount, int likesCount,
+            int postsCount, int commentsCount) {
         this.id = id;
         this.keycloakId = keycloakId;
         this.fullName = fullName;
         this.setUsername(username);
         this.setEmail(email);
         this.phoneNumber = phoneNumber;
+        this.avatarId = avatarId;
         this.avatarUrl = avatarUrl;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
@@ -88,10 +90,10 @@ public class User {
                 null,
                 null,
                 null,
+                null,
                 false,
                 Instant.now(),
-                0, 0, 0, 0, 0
-        );
+                0, 0, 0, 0, 0);
     }
 
     public void setUsername(String username) {
@@ -114,29 +116,45 @@ public class User {
     }
 
     public void updateProfile(String fullName, String phoneNumber, String avatarUrl,
-                              String gender, LocalDate dateOfBirth, String address, String school, boolean isPrivate) {
-        if (fullName != null) this.fullName = fullName;
-        if (phoneNumber != null) this.phoneNumber = phoneNumber;
-        if (avatarUrl != null) this.avatarUrl = avatarUrl;
-        if (gender != null) this.gender = gender;
-        if (dateOfBirth != null) this.dateOfBirth = dateOfBirth;
-        if (address != null) this.address = address;
-        if (school != null) this.school = school;
+            String gender, LocalDate dateOfBirth, String address, String school, boolean isPrivate) {
+        if (fullName != null)
+            this.fullName = fullName;
+        if (phoneNumber != null)
+            this.phoneNumber = phoneNumber;
+        if (avatarUrl != null)
+            this.avatarUrl = avatarUrl;
+        if (gender != null)
+            this.gender = gender;
+        if (dateOfBirth != null)
+            this.dateOfBirth = dateOfBirth;
+        if (address != null)
+            this.address = address;
+        if (school != null)
+            this.school = school;
         this.isprivate = isPrivate;
     }
 
     public void updateInfo(String fullName, String phoneNumber, String gender,
-                           LocalDate dateOfBirth, String address, String school, boolean isPrivate) {
-        if (fullName != null) this.fullName = fullName;
-        if (phoneNumber != null) this.phoneNumber = phoneNumber;
-        if (gender != null) this.gender = gender;
-        if (dateOfBirth != null) this.dateOfBirth = dateOfBirth;
-        if (address != null) this.address = address;
-        if (school != null) this.school = school;
+            LocalDate dateOfBirth, String address, String school, boolean isPrivate) {
+        if (fullName != null)
+            this.fullName = fullName;
+        if (phoneNumber != null)
+            this.phoneNumber = phoneNumber;
+        if (gender != null)
+            this.gender = gender;
+        if (dateOfBirth != null)
+            this.dateOfBirth = dateOfBirth;
+        if (address != null)
+            this.address = address;
+        if (school != null)
+            this.school = school;
         this.isprivate = isPrivate;
     }
 
-    public void updateAvatar(String avatarUrl) {
-        if (avatarUrl != null) this.avatarUrl = avatarUrl;
+    public void updateAvatar(Long avatarId, String avatarUrl) {
+        if (avatarId != null)
+            this.avatarId = avatarId;
+        if (avatarUrl != null)
+            this.avatarUrl = avatarUrl;
     }
 }

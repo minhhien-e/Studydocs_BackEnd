@@ -13,6 +13,7 @@ import studydoc.vo.User;
 public class UpdateUserInfoHandler implements CommandHandler<UpdateUserInfo, UserDTO> {
     private final UserRepository userRepository;
     private final VoMapper voMapper;
+    private final studydoc.integration.MediaIntegrationService mediaIntegrationService;
 
     @Override
     public UserDTO handle(UpdateUserInfo command) {
@@ -30,7 +31,7 @@ public class UpdateUserInfoHandler implements CommandHandler<UpdateUserInfo, Use
         );
         
         User savedUser = userRepository.save(user);
-        return voMapper.toUserDTO(savedUser);
+        return voMapper.toUserDTO(savedUser, savedUser.getAvatarId() != null ? mediaIntegrationService.getMediaUrl(savedUser.getAvatarId()) : savedUser.getAvatarUrl());
     }
 
     @Override

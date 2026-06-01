@@ -20,8 +20,7 @@ public class RequestMapper {
                 request.getDateOfBirth(),
                 request.getAddress(),
                 request.getSchool(),
-                request.isPrivate()
-        );
+                request.isPrivate());
     }
 
     public UpdateUserInfo toUpdateUserInfoCommand(String id, UpdateUserInfoRequest request) {
@@ -33,14 +32,13 @@ public class RequestMapper {
                 request.getDateOfBirth(),
                 request.getAddress(),
                 request.getSchool(),
-                request.isPrivate()
-        );
+                request.isPrivate());
     }
 
     public UpdateUserImage toUpdateUserImageCommand(String id, UpdateUserImageRequest request) {
         return UpdateUserImage.commandOf(
                 id,
-                request.getAvatarUrl()
-        );
+                request.getAvatarId(),
+                request.getAvatarUrl());
     }
 }

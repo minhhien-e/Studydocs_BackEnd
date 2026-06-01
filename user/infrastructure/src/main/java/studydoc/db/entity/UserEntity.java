@@ -22,6 +22,7 @@ public class UserEntity {
     private String username;
     private String email;
     private String phoneNumber;
+    private Long avatarId;
     private String avatarUrl;
     private String gender;
     private LocalDate dateOfBirth;

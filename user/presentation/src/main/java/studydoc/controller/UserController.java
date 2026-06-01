@@ -9,7 +9,7 @@ import studydoc.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/users")
 public class UserController {
     private final SimpleUserCommandBus commandBus;
     private final RequestMapper mapper;
@@ -20,6 +20,7 @@ public class UserController {
         var result = commandBus.send(command);
         return ApiResponse.success(result);
     }
+
 
     @GetMapping("/{id}")
     public ApiResponse<?> getUserById(@PathVariable String id) {

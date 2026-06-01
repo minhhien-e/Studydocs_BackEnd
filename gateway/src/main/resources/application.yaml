@@ -1,0 +1,81 @@
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: gateway
+  reactor:
+    context-propagation: auto
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_SERVER_URL}/protocol/openid-connect/certs
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service-main
+              uri: ${USER_SERVICE_URL}
+              predicates:
+                - Path=/users/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /users/(?<segment>.*)
+                    replacement: /api/v1/users/$\{segment}
+
+            - id: user-service-auth
+              uri: ${USER_SERVICE_URL}
+              predicates:
+                - Path=/auth/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /auth/(?<segment>.*)
+                    replacement: /api/v1/$\{segment}
+
+            - id: media-service
+              uri: ${MEDIA_SERVICE_URL}
+              predicates:
+                - Path=/media/**
+              filters:
+                - name: RewritePath
+                  args:
+                    regexp: /media/?(?<segment>.*)
+                    replacement: /api/v1/media/$\{segment}
+
+          forwarded:
+            enabled: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_URL}
+app:
+  security:
+    whitelist:
+      public-all: ${APP_SECURITY_WHITELIST_PUBLIC_ALL}
+      auth-all: ${APP_SECURITY_WHITELIST_AUTH_ALL}
+      password-all: ${APP_SECURITY_WHITELIST_PASSWORD_ALL}
+      oauth-all: ${APP_SECURITY_WHITELIST_OAUTH_ALL}
+      public-get: ${APP_SECURITY_WHITELIST_PUBLIC_GET}
