@@ -53,14 +53,26 @@ public class CloudinaryStorageProvider implements StorageProvider {
 
     @Override
     public String generatePresignedUrl(String key, HttpMethod method, Duration expiresIn) {
+        String resourceType = "raw";
+        String lowerKey = key.toLowerCase();
+        if (lowerKey.endsWith(".png") || lowerKey.endsWith(".jpg") || lowerKey.endsWith(".jpeg") || lowerKey.endsWith(".gif") || lowerKey.endsWith(".webp") || lowerKey.endsWith(".svg") || lowerKey.endsWith(".bmp")) {
+            resourceType = "image";
+        } else if (lowerKey.endsWith(".mp4") || lowerKey.endsWith(".webm") || lowerKey.endsWith(".mov") || lowerKey.endsWith(".ogg")) {
+            resourceType = "video";
+        }
+
         if (method == HttpMethod.GET) {
-            return cloudinary.url().generate(key);
+            return cloudinary.url().resourceType(resourceType).generate(key);
         }
         long timestamp = System.currentTimeMillis() / 1000;
         Map<String, Object> paramsToSign = ObjectUtils.asMap("timestamp", timestamp, "public_id", key);
         String signature = cloudinary.apiSignRequest(paramsToSign, cloudinary.config.apiSecret);
         
-        return String.format("https://api.cloudinary.com/v1_1/%s/image/upload?api_key=%s&timestamp=%d&signature=%s&public_id=%s",
-                cloudinary.config.cloudName, cloudinary.config.apiKey, timestamp, signature, key);
+        try {
+            return String.format("https://api.cloudinary.com/v1_1/%s/%s/upload?api_key=%s&timestamp=%d&signature=%s&public_id=%s",
+                    cloudinary.config.cloudName, resourceType, cloudinary.config.apiKey, timestamp, signature, java.net.URLEncoder.encode(key, java.nio.charset.StandardCharsets.UTF_8.name()));
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.HashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +36,11 @@ public class MediaServiceImpl implements MediaService {
     @Override
     @Transactional
     public InitUploadResponse initUpload(InitUploadRequest request) {
-        String key = "users/" + request.getOwnerId() + "/" + java.util.UUID.randomUUID() + "_" + request.getFileName();
+        String ext = "";
+        if (request.getFileName() != null && request.getFileName().lastIndexOf('.') > 0) {
+            ext = request.getFileName().substring(request.getFileName().lastIndexOf('.')).toLowerCase();
+        }
+        String key = "users/" + request.getOwnerId() + "/" + java.util.UUID.randomUUID().toString() + ext;
 
         MediaAsset asset = new MediaAsset();
         asset.setOriginalFilename(request.getFileName());
@@ -71,14 +73,19 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     @Transactional
-    public void completeUpload(Long mediaId) {
+    public void completeUpload(Long mediaId, java.util.Map<String, Object> request) {
         MediaAsset asset = mediaAssetRepository.findById(mediaId).orElseThrow(() -> new studydocs.media.web.rest.exception.MediaNotFoundException(mediaId.toString()));
 
         if (asset.getState() != AssetState.PENDING_UPLOAD) {
             throw new IllegalStateException("Asset is not in PENDING_UPLOAD state");
         }
 
-        asset.setState(AssetState.UPLOADED);
+        asset.setState(AssetState.ACTIVE);
+        if (request != null && request.containsKey("secure_url")) {
+            asset.setOriginalKey((String) request.get("secure_url"));
+        } else if (request != null && request.containsKey("url")) {
+            asset.setOriginalKey((String) request.get("url"));
+        }
         mediaAssetRepository.save(asset);
 
             }
@@ -90,7 +97,11 @@ public class MediaServiceImpl implements MediaService {
 
         String downloadUrl = null;
         if (asset.getState() == AssetState.ACTIVE) {
-            downloadUrl = storageProvider.generatePresignedUrl(asset.getOriginalKey(), HttpMethod.GET, Duration.ofHours(1));
+            if (asset.getOriginalKey() != null && asset.getOriginalKey().startsWith("http")) {
+                downloadUrl = asset.getOriginalKey();
+            } else {
+                downloadUrl = storageProvider.generatePresignedUrl(asset.getOriginalKey(), HttpMethod.GET, Duration.ofHours(1));
+            }
 
             meterRegistry.counter("media.private.url.generated", "type", asset.getMediaType().name()).increment();
             log.info("[AUDIT] Caller requested Private Signed URL for Asset '{}' (Owner '{}')",

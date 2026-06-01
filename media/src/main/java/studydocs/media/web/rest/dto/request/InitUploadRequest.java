@@ -13,7 +13,7 @@ public class InitUploadRequest {
     private String fileName;
     private long sizeBytes;
     private OwnerType ownerType;
-    private Long ownerId;
+    private String ownerId;
     @JsonIgnore
     private String idempotencyKey;
 }

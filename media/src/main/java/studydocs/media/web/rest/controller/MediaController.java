@@ -23,8 +23,8 @@ public class MediaController {
     }
 
     @PutMapping("/{mediaId}/complete-upload")
-    public ResponseEntity<Void> completeUpload(@PathVariable Long mediaId) {
-        mediaService.completeUpload(mediaId);
+    public ResponseEntity<Void> completeUpload(@PathVariable Long mediaId, @RequestBody(required = false) java.util.Map<String, Object> request) {
+        mediaService.completeUpload(mediaId, request);
         return ResponseEntity.ok().build();
     }
 

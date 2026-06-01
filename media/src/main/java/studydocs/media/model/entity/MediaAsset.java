@@ -24,7 +24,7 @@ public class MediaAsset extends BaseEntity {
      * (user_id, shop_id, service_id...)
      */
     @Column(nullable = false)
-    private Long ownerId;
+    private String ownerId;
 
     /**
      * Loại owner (User, Shop, Product...)

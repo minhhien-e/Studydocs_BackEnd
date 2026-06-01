@@ -7,6 +7,6 @@ import studydocs.media.web.rest.dto.response.MediaStatusResponse;
 
 public interface MediaService {
     InitUploadResponse initUpload(InitUploadRequest request);
-    void completeUpload(Long mediaId);
+    void completeUpload(Long mediaId, java.util.Map<String, Object> request);
     MediaStatusResponse getMediaById(Long mediaId);
 }
