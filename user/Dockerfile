@@ -25,7 +25,7 @@ COPY presentation presentation
 RUN --mount=type=secret,id=GITHUB_TOKEN \
     --mount=type=cache,target=/root/.gradle \
     export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
-    chmod +x gradlew && ./gradlew :boot:bootJar -x test
+    sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew :boot:bootJar -x test
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre-alpine

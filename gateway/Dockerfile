@@ -15,7 +15,7 @@ COPY src src
 
 # Tiến hành cấp quyền thực thi và build JAR, sử dụng Cache Mount để tối ưu tốc độ build
 RUN --mount=type=cache,target=/root/.gradle \
-    chmod +x gradlew && ./gradlew build -x test
+    sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew build -x test
 
 # =========================================================================
 # Stage 2: Run (Môi trường chạy thực tế siêu nhẹ và bảo mật)
