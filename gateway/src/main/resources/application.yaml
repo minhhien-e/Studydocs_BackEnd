@@ -51,6 +51,21 @@ spring:
                     regexp: /auth/(?<segment>.*)
                     replacement: /api/v1/$\{segment}
 
+            - id: user-service-auth-api-v1-compat
+              uri: ${USER_SERVICE_URL}
+              predicates:
+                - Path=/api/v1/auth/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /api/v1/auth/(?<segment>.*)
+                    replacement: /api/v1/$\{segment}
+
             - id: media-service
               uri: ${MEDIA_SERVICE_URL}
               predicates:
@@ -60,6 +75,64 @@ spring:
                   args:
                     regexp: /media/?(?<segment>.*)
                     replacement: /api/v1/media/$\{segment}
+
+            - id: education-documents-root
+              uri: ${EDUCATION_SERVICE_URL}
+              predicates:
+                - Path=/documents
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: SetPath
+                  args:
+                    template: /api/v1/documents
+
+            - id: education-documents
+              uri: ${EDUCATION_SERVICE_URL}
+              predicates:
+                - Path=/documents/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /documents/(?<segment>.*)
+                    replacement: /api/v1/documents/$\{segment}
+
+            - id: education-universities-root
+              uri: ${EDUCATION_SERVICE_URL}
+              predicates:
+                - Path=/universities
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: SetPath
+                  args:
+                    template: /api/v1/universities
+
+            - id: education-universities
+              uri: ${EDUCATION_SERVICE_URL}
+              predicates:
+                - Path=/universities/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    key-resolver: "#{@ipKeyResolver}"
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                - name: RewritePath
+                  args:
+                    regexp: /universities/(?<segment>.*)
+                    replacement: /api/v1/universities/$\{segment}
 
           forwarded:
             enabled: true

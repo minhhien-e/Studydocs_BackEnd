@@ -21,7 +21,7 @@ COPY src src
 RUN --mount=type=secret,id=GITHUB_TOKEN \
     --mount=type=cache,target=/root/.gradle \
     export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
-    chmod +x gradlew && ./gradlew build -x test
+    sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew build -x test
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre-alpine
