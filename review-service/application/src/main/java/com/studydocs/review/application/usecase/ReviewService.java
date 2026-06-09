@@ -26,6 +26,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final InteractionRepository interactionRepository;
+    private final DocumentStatsSyncService documentStatsSyncService;
 
     @Transactional
     public ReviewModel createReview(UUID documentId, String documentTitle, UUID userId, String username, String avatar, String content) {
@@ -44,7 +45,9 @@ public class ReviewService {
                 .replyCount(0)
                 .build();
 
-        return reviewRepository.save(review);
+        ReviewModel saved = reviewRepository.save(review);
+        documentStatsSyncService.syncStats(documentId);
+        return saved;
     }
 
     @Transactional
@@ -67,7 +70,9 @@ public class ReviewService {
         parent.addReply(reply);
         reviewRepository.save(parent);
         
-        return reviewRepository.save(reply);
+        ReviewModel saved = reviewRepository.save(reply);
+        documentStatsSyncService.syncStats(reply.getDocumentId());
+        return saved;
     }
 
     public Page<ReviewModel> getDocumentReviews(UUID documentId, Pageable pageable) {
@@ -83,7 +88,9 @@ public class ReviewService {
             throw new UnauthorizedException();
         }
 
+        UUID docId = review.getDocumentId();
         reviewRepository.delete(review);
+        documentStatsSyncService.syncStats(docId);
     }
 
     public ReviewModel getReviewById(UUID id) {

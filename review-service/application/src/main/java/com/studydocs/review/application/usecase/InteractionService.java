@@ -23,6 +23,7 @@ public class InteractionService {
 
     private final InteractionRepository interactionRepository;
     private final ReviewRepository reviewRepository;
+    private final DocumentStatsSyncService documentStatsSyncService;
 
     @Transactional
     public void interact(UUID userId, UUID targetId, TargetType targetType, InteractionType type) {
@@ -49,6 +50,9 @@ public class InteractionService {
                     .build();
             interactionRepository.save(interaction);
             updateCounts(targetId, targetType, type, 1);
+        }
+        if (targetType == TargetType.DOCUMENT) {
+            documentStatsSyncService.syncStats(targetId);
         }
     }
 
