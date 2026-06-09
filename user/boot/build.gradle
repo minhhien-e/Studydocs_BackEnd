@@ -1,0 +1,30 @@
+plugins {
+    id 'org.springframework.boot'
+}
+
+tasks.named('bootRun') {
+    def envFile = rootProject.file('.env')
+    if (envFile.exists()) {
+        envFile.readLines().each { line ->
+            def trimmed = line.trim()
+            if (!trimmed || trimmed.startsWith('#')) {
+                return
+            }
+            def separatorIndex = trimmed.indexOf('=')
+            if (separatorIndex > 0) {
+                environment trimmed.substring(0, separatorIndex).trim(), trimmed.substring(separatorIndex + 1).trim()
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation project(':presentation')
+    implementation project(':infrastructure')
+    
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+}
