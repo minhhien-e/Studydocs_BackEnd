@@ -22,8 +22,7 @@ COPY infrastructure infrastructure
 COPY presentation presentation
 
 # Make the wrapper executable and build the application using securely mounted secret
-RUN --mount=type=secret,id=GITHUB_TOKEN \
-    --mount=type=cache,target=/root/.gradle \
+RUN --mount=type=cache,id=user-gradle-cache,target=/root/.gradle \
     export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
     sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew :boot:bootJar -x test
 

@@ -8,7 +8,7 @@ COPY gradle gradle
 COPY build.gradle settings.gradle ./
 COPY src src
 
-RUN --mount=type=cache,target=/root/.gradle \
+RUN --mount=type=cache,id=education-gradle-cache,target=/root/.gradle \
     sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew build -x test
 
 # Stage 2: Run

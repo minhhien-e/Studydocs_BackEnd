@@ -18,8 +18,7 @@ COPY build.gradle settings.gradle ./
 COPY src src
 
 # Make the wrapper executable and build the application using securely mounted secret
-RUN --mount=type=secret,id=GITHUB_TOKEN \
-    --mount=type=cache,target=/root/.gradle \
+RUN --mount=type=cache,id=media-gradle-cache,target=/root/.gradle \
     export GITHUB_TOKEN=$(cat /run/secrets/GITHUB_TOKEN) && \
     sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew build -x test
 
