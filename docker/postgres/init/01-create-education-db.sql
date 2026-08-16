@@ -1,1 +1,0 @@
-CREATE DATABASE studydocs_education_db;

@@ -1,197 +1,45 @@
-x-common-service: &common-service
-  restart: always
-
-x-java-build: &java-build
-  dockerfile: Dockerfile
-  args:
-    - GITHUB_ACTOR=${GITHUB_ACTOR}
-  secrets:
-    - GITHUB_TOKEN
-
-x-java-service: &java-service
-  <<: *common-service
-  environment:
-    SERVER_PORT: 8080
-  expose:
-    - "8080"
-
-x-postgres-dep: &postgres-dep
-  postgres:
-    condition: service_healthy
-
-x-mongo-dep: &mongo-dep
-  mongo:
-    condition: service_started
+version: '3.8'
 
 services:
-  postgres:
-    image: postgres:13.1-alpine
-    container_name: studydocs_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: studydocs_media_db
-    expose:
-      - "5432"
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d studydocs_media_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  postgres-init:
-    image: postgres:13.1-alpine
-    container_name: studydocs_postgres_init
-    restart: "no"
-    environment:
-      PGPASSWORD: postgres
-    command: >
-      sh -c "psql -h postgres -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname = 'studydocs_education_db'\" | grep -q 1 || createdb -h postgres -U postgres studydocs_education_db"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  mongo:
-    image: mongo:7
-    container_name: studydocs_mongo
-    <<: *common-service
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: 123456
-      MONGO_INITDB_DATABASE: studydocs_user_db
-    expose:
-      - "27017"
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  redis:
-    image: redis:7
-    container_name: studydocs_redis
-    <<: *common-service
-    expose:
-      - "6379"
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  zipkin:
-    image: openzipkin/zipkin:3
-    container_name: studydocs_zipkin
-    <<: *common-service
-    expose:
-      - "9411"
-    ports:
-      - "9411:9411"
-
-  gateway:
-    image: studydocs-gateway:latest
+  app:
     build:
-      context: ./gateway
+      context: .
       dockerfile: Dockerfile
-    container_name: studydocs_gateway
-    <<: *common-service
+    container_name: studydocs-backend
     ports:
-      - "8080:8080"
-    env_file:
-      - ./gateway/.env
-    depends_on:
-      - redis
-      - zipkin
-      - keycloak
-      - user-service
-      - media-service
-      - education-service 
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:25.0.0
-    container_name: studydocs_keycloak
-    <<: *common-service
-    ports:
-      - "8180:8080"
+      - "8090:8090"
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    volumes:
-      - ./user/keycloak/studydoc-realm-export.json:/opt/keycloak/data/import/studydoc-realm-export.json
-    command: start-dev --import-realm
-
-  user-service:
-    <<: *java-service
-    image: studydocs-user-service:latest
-    container_name: studydocs_user_service
-    build:
-      context: ./user
-      <<: *java-build
-    environment:
-      SERVER_PORT: 8080
-      MONGO_URI: mongodb://admin:123456@mongo:27017/studydocs_user_db?authSource=admin
-      app.media-service.url: http://media-service:8080
-      KEYCLOAK_SERVER_URL: http://keycloak:8080
-      KEYCLOAK_CLIENT_SECRET: studydocs-secret
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/studydocs?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - JWT_SECRET=studydocsSecretKeySuperLongAndSecureForJwtSigning1234567890
     depends_on:
-      <<: [*mongo-dep]
-      keycloak:
-        condition: service_started
-
-  media-service:
-    <<: *java-service
-    image: studydocs-media-service:latest
-    container_name: studydocs_media_service
-    build:
-      context: ./media
-      <<: *java-build
-    env_file:
-      - ./media/.env
-    environment:
-      SERVER_PORT: 8080
-      DATASOURCE_URL: jdbc:postgresql://postgres:5432/studydocs_media_db
-      DATASOURCE_USERNAME: postgres
-      DATASOURCE_PASSWORD: postgres
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_ISSUER_URI: http://keycloak:8080/realms/studydocs-app
-    depends_on:
-      <<: [*postgres-dep]
-      redis:
+      mysql:
         condition: service_healthy
+    networks:
+      - studydocs-network
 
-  education-service:
-    <<: *java-service
-    image: studydocs-education-service:latest
-    container_name: studydocs_education_service
-    build:
-      context: ./education-service
-      dockerfile: Dockerfile
-    env_file:
-      - ./education-service/.env
+  mysql:
+    image: mysql:8.0
+    container_name: studydocs-mysql
+    ports:
+      - "3306:3306"
     environment:
-      SERVER_PORT: 8080
-      DATASOURCE_URL: jdbc:postgresql://postgres:5432/studydocs_education_db
-      DATASOURCE_USERNAME: postgres
-      DATASOURCE_PASSWORD: postgres
-    depends_on:
-      postgres-init:
-        condition: service_completed_successfully
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: studydocs
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - studydocs-network
 
 volumes:
-  postgres_data:
-  mongo_data:
-  redis_data:
+  mysql_data:
 
-secrets:
-  GITHUB_TOKEN:
-    environment: GITHUB_TOKEN
+networks:
+  studydocs-network:
+    driver: bridge

@@ -1,0 +1,19 @@
+package com.studydocs.modules.academic.repository;
+
+import com.studydocs.modules.academic.entity.DocumentEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DocumentRepository extends JpaRepository<DocumentEntity, String> {
+    List<DocumentEntity> findByUploaderId(String uploaderId);
+    List<DocumentEntity> findTop10ByIsPublicTrueOrderByLikeCountDesc();
+    List<DocumentEntity> findTop10ByIsPublicTrueOrderByCreatedAtDesc();
+
+    @Query("SELECT d FROM DocumentEntity d WHERE d.isPublic = true AND (:q IS NULL OR LOWER(d.title) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(d.description) LIKE LOWER(CONCAT('%', :q, '%')))")
+    List<DocumentEntity> searchDocuments(@Param("q") String query);
+}

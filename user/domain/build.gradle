@@ -1,6 +1,0 @@
-dependencies {
-    // Domain should have minimal dependencies. 
-    // Common dependencies like Lombok and JUnit are inherited from root build.gradle.
-    implementation 'org.springframework:spring-context'//hỗ trợ các annotation cơ bản
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-}

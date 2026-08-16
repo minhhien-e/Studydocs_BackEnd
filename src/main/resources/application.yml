@@ -1,0 +1,40 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: studydocs-backend
+  flyway:
+    enabled: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/studydocs?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+jwt:
+  secret: ${JWT_SECRET:studydocsSecretKeySuperLongAndSecureForJwtSigning1234567890}
+  expiration-ms: 86400000 # 24 hours
+  refresh-expiration-ms: 604800000 # 7 days
+
+file:
+  upload-dir: ${UPLOAD_DIR:uploads}
+
+logging:
+  level:
+    root: INFO
+    com.studydocs: DEBUG

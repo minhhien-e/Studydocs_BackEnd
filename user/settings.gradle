@@ -1,7 +1,0 @@
-rootProject.name = 'user'
-
-include 'presentation'
-include 'application'
-include 'domain'
-include 'infrastructure'
-include 'boot'
