@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "studydocs-backend-full-fe-api-collection",
-		"name": "StudyDocs Backend API Collection (FE Full Alignment)",
-		"description": "Bộ Postman Collection kiểm thử 100% tất cả các endpoints mà Frontend gọi.",
+		"_postman_id": "studydocs-backend-full-fe-35-collection",
+		"name": "StudyDocs Backend API Collection (35+ Endpoints Full Coverage)",
+		"description": "Bộ Postman Collection kiểm thử 100% tất cả 35+ API Endpoints mà Flutter Frontend gọi.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -82,6 +82,89 @@
 					"response": []
 				},
 				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"sample-refresh-token\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/public/auth/refresh-token",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"public",
+								"auth",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/public/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"public",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@studydocs.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/public/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"public",
+								"auth",
+								"forgot-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Google OAuth Login URL",
 					"request": {
 						"method": "POST",
@@ -97,6 +180,36 @@
 								"auth",
 								"google",
 								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Google OAuth Callback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"sample-auth-code\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/public/auth/google/callback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"public",
+								"auth",
+								"google",
+								"callback"
 							]
 						}
 					},
@@ -146,7 +259,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullName\": \"Administrator FE Updated\",\n    \"phoneNumber\": \"0987654321\",\n    \"gender\": \"Male\",\n    \"bio\": \"Cập nhật bio người dùng\"\n}"
+							"raw": "{\n    \"fullName\": \"StudyDocs Administrator\",\n    \"phoneNumber\": \"0987654321\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/user/me",
@@ -156,6 +269,117 @@
 							"path": [
 								"user",
 								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-admin-001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-admin-001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Other Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-user-002/other",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-user-002",
+								"other"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Info",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"school\": \"HCMUT\",\n    \"major\": \"Software Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-admin-001/info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-admin-001",
+								"info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"avatarUrl\": \"https://i.pravatar.cc/150?u=updated\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-admin-001/image",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-admin-001",
+								"image"
 							]
 						}
 					},
@@ -235,6 +459,129 @@
 					"response": []
 				},
 				{
+					"name": "Get University Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/academics/universities/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"academics",
+								"universities",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Faculties By University",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/academics/universities/1/faculties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"academics",
+								"universities",
+								"1",
+								"faculties"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Subjects",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/academics/subjects",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"academics",
+								"subjects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Academic Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/academics/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"academics",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Documents List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Most Liked Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/public/most-liked?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"public",
+								"most-liked"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Newest Documents",
 					"request": {
 						"method": "GET",
@@ -255,6 +602,26 @@
 									"key": "limit",
 									"value": "10"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/public/doc-001",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"public",
+								"doc-001"
 							]
 						}
 					},
@@ -286,7 +653,137 @@
 					"response": []
 				},
 				{
-					"name": "Get Admin Document Total Stats",
+					"name": "Get My Documents",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/user/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"user",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Document Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/user/me/count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"user",
+								"me",
+								"count"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bookmark Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/doc-001/bookmark",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"doc-001",
+								"bookmark"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/doc-001/download",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"doc-001",
+								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interact Document Like/Dislike",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"LIKE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/doc-001/interactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"doc-001",
+								"interactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Admin Total Documents",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -306,14 +803,265 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Admin System Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/education/documents/admin/stats/system",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"education",
+								"documents",
+								"admin",
+								"stats",
+								"system"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
 		{
-			"name": "4. Follow & Review & Media & Notification API",
+			"name": "4. Reviews, Comments & Interactions API",
 			"item": [
 				{
-					"name": "Get User Followers",
+					"name": "Get Document Reviews List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/documents/doc-001/reviews",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"documents",
+								"doc-001",
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Document Review",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"documentId\": \"doc-001\",\n    \"rating\": 5,\n    \"content\": \"Tài liệu chi tiết cực kỳ hữu ích!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comment Replies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reviews/cmt-001/replies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reviews",
+								"cmt-001",
+								"replies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Comment Reply",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Phản hồi bình luận mẫu\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/cmt-001/replies",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reviews",
+								"cmt-001",
+								"replies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Interact Review Like",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"LIKE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/reviews/cmt-001/interactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reviews",
+								"cmt-001",
+								"interactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Admin Total Reactions Likes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/user/reviews/admin/stats/reactions/total-likes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"reviews",
+								"admin",
+								"stats",
+								"reactions",
+								"total-likes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Reaction Count",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/reviews/user/me/reactions/count",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"reviews",
+								"user",
+								"me",
+								"reactions",
+								"count"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Follow, Media & Notification API",
+			"item": [
+				{
+					"name": "Follow User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-user-002/follow",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-user-002",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unfollow User via DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/usr-user-002/follow",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"usr-user-002",
+								"follow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Followers",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -336,25 +1084,23 @@
 					"response": []
 				},
 				{
-					"name": "Get Document Reviews",
+					"name": "Get Following",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{accessToken}}"
+							}
+						],
 						"url": {
-							"raw": "{{baseUrl}}/user/reviews/document?documentId=doc-001",
+							"raw": "{{baseUrl}}/user/following",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"user",
-								"reviews",
-								"document"
-							],
-							"query": [
-								{
-									"key": "documentId",
-									"value": "doc-001"
-								}
+								"following"
 							]
 						}
 					},
@@ -382,6 +1128,25 @@
 							"path": [
 								"media",
 								"init-upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Complete Media Upload via PUT",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/media/media-001/complete-upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"media-001",
+								"complete-upload"
 							]
 						}
 					},

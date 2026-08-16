@@ -34,12 +34,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/user/public/**",
-                                "/education/documents/public/**",
-                                "/education/documents/search",
-                                "/education/documents/admin/**",
+                                "/education/documents/**",
                                 "/education/academics/**",
-                                "/user/reviews/document",
-                                "/user/reviews/admin/**",
+                                "/documents/**",
+                                "/reviews/**",
+                                "/user/reviews/**",
                                 "/media/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

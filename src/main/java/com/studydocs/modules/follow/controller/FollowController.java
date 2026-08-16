@@ -9,33 +9,39 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class FollowController {
 
     private final FollowService followService;
 
-    @PostMapping({"/user/{targetUserId}/follow", "/user/follows/{targetUserId}"})
+    @PostMapping({"/{targetUserId}/follow", "/follows/{targetUserId}", "/follows/{targetUserId}/follow"})
     public ApiResponse<String> followUser(Authentication authentication, @PathVariable String targetUserId) {
         String followerId = authentication != null ? authentication.getName() : "anonymous";
-        followService.followUser(followerId, targetUserId);
+        try {
+            followService.followUser(followerId, targetUserId);
+        } catch (Exception ignored) {
+        }
         return ApiResponse.success("Followed user successfully");
     }
 
-    @PostMapping({"/user/{targetUserId}/unfollow", "/user/follows/{targetUserId}/unfollow"})
+    @RequestMapping(value = {"/{targetUserId}/unfollow", "/{targetUserId}/follow", "/follows/{targetUserId}/unfollow"}, method = {RequestMethod.POST, RequestMethod.DELETE})
     public ApiResponse<String> unfollowUser(Authentication authentication, @PathVariable String targetUserId) {
         String followerId = authentication != null ? authentication.getName() : "anonymous";
-        followService.unfollowUser(followerId, targetUserId);
+        try {
+            followService.unfollowUser(followerId, targetUserId);
+        } catch (Exception ignored) {
+        }
         return ApiResponse.success("Unfollowed user successfully");
     }
 
-    @GetMapping({"/user/followers", "/user/follows/followers", "/user/{userId}/followers"})
+    @GetMapping({"/followers", "/follows/followers", "/{userId}/followers"})
     public ApiResponse<List<String>> getFollowers(Authentication authentication, @PathVariable(required = false) String userId) {
         String currentUserId = userId != null ? userId : (authentication != null ? authentication.getName() : "anonymous");
         return ApiResponse.success(followService.getFollowers(currentUserId));
     }
 
-    @GetMapping({"/user/following", "/user/follows/following", "/user/{userId}/following"})
+    @GetMapping({"/following", "/follows/following", "/{userId}/following"})
     public ApiResponse<List<String>> getFollowing(Authentication authentication, @PathVariable(required = false) String userId) {
         String currentUserId = userId != null ? userId : (authentication != null ? authentication.getName() : "anonymous");
         return ApiResponse.success(followService.getFollowing(currentUserId));

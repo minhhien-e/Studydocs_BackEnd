@@ -23,6 +23,14 @@ public class AcademicController {
         return ApiResponse.success(academicService.getAllUniversities());
     }
 
+    @GetMapping("/universities/{universityId}")
+    public ApiResponse<AcademicDtos.UniversityDto> getUniversityDetail(@PathVariable Long universityId) {
+        return ApiResponse.success(academicService.getAllUniversities().stream()
+                .filter(u -> u.getId().equals(universityId))
+                .findFirst()
+                .orElse(null));
+    }
+
     @GetMapping("/universities/{universityId}/faculties")
     public ApiResponse<List<AcademicDtos.FacultyDto>> getFacultiesByUniversity(@PathVariable Long universityId) {
         return ApiResponse.success(academicService.getFacultiesByUniversity(universityId));

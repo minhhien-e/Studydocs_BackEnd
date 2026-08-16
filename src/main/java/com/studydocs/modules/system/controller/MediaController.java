@@ -37,7 +37,7 @@ public class MediaController {
         ));
     }
 
-    @PostMapping("/{mediaId}/complete-upload")
+    @RequestMapping(value = "/{mediaId}/complete-upload", method = {RequestMethod.POST, RequestMethod.PUT})
     public ApiResponse<SystemDtos.MediaResponse> completeUpload(@PathVariable String mediaId,
                                                                  @RequestParam(value = "file", required = false) MultipartFile file,
                                                                  Authentication authentication) {

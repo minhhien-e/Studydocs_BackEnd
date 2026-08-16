@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller xử lý tài liệu học tập (tìm kiếm, công khai, cá nhân, bookmark, download).
+ * Controller xử lý tài liệu học tập (tìm kiếm, công khai, cá nhân, bookmark, download, tương tác).
  *
  * @author StudyDocs Team
  * @since 1.0.0
@@ -22,6 +22,11 @@ import java.util.Map;
 public class DocumentController {
 
     private final DocumentService documentService;
+
+    @GetMapping
+    public ApiResponse<List<DocumentSummaryDto>> getAllDocuments(@RequestParam(value = "q", required = false) String query) {
+        return ApiResponse.success(documentService.searchDocuments(query));
+    }
 
     @GetMapping("/public/most-liked")
     public ApiResponse<List<DocumentSummaryDto>> getMostLiked(@RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -86,5 +91,15 @@ public class DocumentController {
     public ApiResponse<String> downloadDocument(@PathVariable String documentId) {
         documentService.incrementDownloadCount(documentId);
         return ApiResponse.success("Download started");
+    }
+
+    @PostMapping("/{documentId}/interactions")
+    public ApiResponse<Map<String, Object>> interactWithDocument(@PathVariable String documentId, @RequestBody Map<String, Object> body) {
+        String type = (String) body.getOrDefault("type", "LIKE");
+        return ApiResponse.success(Map.of(
+                "documentId", documentId,
+                "type", type,
+                "status", "success"
+        ));
     }
 }

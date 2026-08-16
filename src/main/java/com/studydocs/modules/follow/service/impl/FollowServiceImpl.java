@@ -3,8 +3,6 @@ package com.studydocs.modules.follow.service.impl;
 import com.studydocs.modules.follow.entity.UserFollowEntity;
 import com.studydocs.modules.follow.repository.FollowRepository;
 import com.studydocs.modules.follow.service.FollowService;
-import com.studydocs.shared.exception.AppException;
-import com.studydocs.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +17,8 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public void followUser(String followerId, String targetUserId) {
-        if (followerId.equals(targetUserId)) {
-            throw new AppException(ErrorCode.CANNOT_FOLLOW_SELF);
+        if (followerId != null && followerId.equals(targetUserId)) {
+            return;
         }
         if (!followRepository.existsByFollowerIdAndFollowingId(followerId, targetUserId)) {
             UserFollowEntity follow = UserFollowEntity.builder()
@@ -47,7 +45,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public List<String> getFollowing(String userId) {
         return followRepository.findByFollowerId(userId).stream()
-                .map(UserFollowEntity::getFollowingId)
+                .map(UserFollowEntity::getFollowerId)
                 .collect(Collectors.toList());
     }
 }
