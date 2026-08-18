@@ -28,7 +28,7 @@ public class AcademicController {
         return ApiResponse.success(academicService.getAllUniversities().stream()
                 .filter(u -> u.getId().equals(universityId))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/universities/{universityId}/faculties")
@@ -56,7 +56,7 @@ public class AcademicController {
         return ApiResponse.success(academicService.getAllUniversities().stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/public/subjects/id/{id}")
@@ -64,7 +64,7 @@ public class AcademicController {
         return ApiResponse.success(academicService.getSubjectsByDepartment(1L).stream()
                 .filter(s -> s.getId().equals(id))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/documents")

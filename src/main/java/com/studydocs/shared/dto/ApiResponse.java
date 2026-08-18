@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 public class ApiResponse<T> {
 
     private int statusCode;
-    private Integer errorCode;
+    private String errorCode;
+    private String message;
     private T data;
     private String traceId;
 
@@ -35,7 +36,16 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(int statusCode, Integer errorCode, T data, String traceId) {
+    public static <T> ApiResponse<T> error(int statusCode, String errorCode, String message, String traceId) {
+        return ApiResponse.<T>builder()
+                .statusCode(statusCode)
+                .errorCode(errorCode)
+                .message(message)
+                .traceId(traceId)
+                .build();
+    }
+
+    public static <T> ApiResponse<T> error(int statusCode, String errorCode, T data, String traceId) {
         return ApiResponse.<T>builder()
                 .statusCode(statusCode)
                 .errorCode(errorCode)
@@ -44,7 +54,7 @@ public class ApiResponse<T> {
                 .build();
     }
 
-    public static <T> ApiResponse<T> error(int statusCode, Integer errorCode, String traceId) {
+    public static <T> ApiResponse<T> error(int statusCode, String errorCode, String traceId) {
         return ApiResponse.<T>builder()
                 .statusCode(statusCode)
                 .errorCode(errorCode)

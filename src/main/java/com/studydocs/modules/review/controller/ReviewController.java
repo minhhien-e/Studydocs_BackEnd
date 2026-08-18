@@ -38,48 +38,28 @@ public class ReviewController {
 
     @PutMapping("/reviews/{commentId}")
     public ApiResponse<ReviewDto> updateReview(@PathVariable String commentId, @RequestBody Map<String, Object> body) {
-        String content = (String) body.getOrDefault("content", "Updated comment content");
-        return ApiResponse.success(ReviewDto.builder()
-                .id(commentId)
-                .documentId("doc-001")
-                .userId("usr-admin-001")
-                .rating(5)
-                .comment(content)
-                .createdAt(LocalDateTime.now())
-                .build());
+        String content = (String) body.getOrDefault("content", body.get("comment"));
+        return ApiResponse.success(reviewService.updateReview(commentId, content));
     }
 
     @DeleteMapping("/reviews/{commentId}")
     public ApiResponse<String> deleteReview(@PathVariable String commentId) {
+        reviewService.deleteReview(commentId);
         return ApiResponse.success("Review deleted successfully");
     }
 
     @GetMapping("/reviews/{commentId}/replies")
     public ApiResponse<List<ReviewDto>> getReplies(@PathVariable String commentId) {
-        return ApiResponse.success(List.of(
-                ReviewDto.builder()
-                        .id(UUID.randomUUID().toString())
-                        .documentId("doc-001")
-                        .userId("usr-user-002")
-                        .rating(5)
-                        .comment("Cảm ơn bạn đã chia sẻ tài liệu rất hay!")
-                        .createdAt(LocalDateTime.now())
-                        .build()
-        ));
+        return ApiResponse.success(reviewService.getReplies(commentId));
     }
 
     @PostMapping("/reviews/{commentId}/replies")
     public ApiResponse<ReviewDto> addReply(@PathVariable String commentId, Authentication authentication, @RequestBody Map<String, Object> body) {
         String userId = authentication != null ? authentication.getName() : "anonymous";
-        String content = (String) body.getOrDefault("content", "Phản hồi bài viết");
-        return ApiResponse.success(ReviewDto.builder()
-                .id(UUID.randomUUID().toString())
-                .documentId("doc-001")
-                .userId(userId)
-                .rating(5)
-                .comment(content)
-                .createdAt(LocalDateTime.now())
-                .build());
+        String content = (String) body.getOrDefault("content", body.get("comment"));
+        // Ensure review exists in DB
+        ReviewDto parentReview = reviewService.getReviewById(commentId);
+        return ApiResponse.success(reviewService.addReview(userId, parentReview.getDocumentId(), 5, content));
     }
 
     @PostMapping("/reviews/{commentId}/interactions")

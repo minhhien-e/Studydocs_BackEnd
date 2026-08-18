@@ -18,20 +18,21 @@ public class FollowController {
     @PostMapping({"/{targetUserId}/follow", "/follows/{targetUserId}", "/follows/{targetUserId}/follow"})
     public ApiResponse<String> followUser(Authentication authentication, @PathVariable String targetUserId) {
         String followerId = authentication != null ? authentication.getName() : "anonymous";
-        try {
-            followService.followUser(followerId, targetUserId);
-        } catch (Exception ignored) {
-        }
+        followService.followUser(followerId, targetUserId);
         return ApiResponse.success("Followed user successfully");
     }
 
-    @RequestMapping(value = {"/{targetUserId}/unfollow", "/{targetUserId}/follow", "/follows/{targetUserId}/unfollow"}, method = {RequestMethod.POST, RequestMethod.DELETE})
+    @PostMapping({"/{targetUserId}/unfollow", "/follows/{targetUserId}/unfollow"})
     public ApiResponse<String> unfollowUser(Authentication authentication, @PathVariable String targetUserId) {
         String followerId = authentication != null ? authentication.getName() : "anonymous";
-        try {
-            followService.unfollowUser(followerId, targetUserId);
-        } catch (Exception ignored) {
-        }
+        followService.unfollowUser(followerId, targetUserId);
+        return ApiResponse.success("Unfollowed user successfully");
+    }
+
+    @DeleteMapping({"/{targetUserId}/follow", "/follows/{targetUserId}"})
+    public ApiResponse<String> unfollowUserDelete(Authentication authentication, @PathVariable String targetUserId) {
+        String followerId = authentication != null ? authentication.getName() : "anonymous";
+        followService.unfollowUser(followerId, targetUserId);
         return ApiResponse.success("Unfollowed user successfully");
     }
 

@@ -32,9 +32,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void markAsRead(String notificationId) {
-        notificationRepository.findById(notificationId).ifPresent(n -> {
-            n.setIsRead(true);
-            notificationRepository.save(n);
-        });
+        com.studydocs.modules.system.entity.NotificationEntity n = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.NOTIFICATION_NOT_FOUND));
+        n.setIsRead(true);
+        notificationRepository.save(n);
     }
 }

@@ -18,15 +18,16 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public void followUser(String followerId, String targetUserId) {
         if (followerId != null && followerId.equals(targetUserId)) {
-            return;
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.CANNOT_FOLLOW_SELF);
         }
-        if (!followRepository.existsByFollowerIdAndFollowingId(followerId, targetUserId)) {
-            UserFollowEntity follow = UserFollowEntity.builder()
-                    .followerId(followerId)
-                    .followingId(targetUserId)
-                    .build();
-            followRepository.save(follow);
+        if (followRepository.existsByFollowerIdAndFollowingId(followerId, targetUserId)) {
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ALREADY_FOLLOWED);
         }
+        UserFollowEntity follow = UserFollowEntity.builder()
+                .followerId(followerId)
+                .followingId(targetUserId)
+                .build();
+        followRepository.save(follow);
     }
 
     @Override

@@ -35,41 +35,12 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentSummaryDto getDocumentById(String id) {
-        Optional<DocumentEntity> docOpt = documentRepository.findById(id);
-        if (docOpt.isPresent()) {
-            DocumentEntity doc = docOpt.get();
-            doc.setViewCount(doc.getViewCount() + 1);
-            documentRepository.save(doc);
-            return toSummaryDto(doc);
-        }
-
-        return DocumentSummaryDto.builder()
-                .id(id)
-                .title("Giáo trình Nhập môn Lập trình Java 17")
-                .description("Bài giảng chi tiết về ngôn ngữ Java, OOP và Spring Boot Framework.")
-                .fileUrl("https://example.com/java-tutorial.pdf")
-                .fileSize(1024500L)
-                .fileType("pdf")
-                .uploaderId("usr-admin-001")
-                .uploaderName("Admin User")
-                .thumbnail("https://example.com/java-tutorial.pdf")
-                .category("Công nghệ thông tin")
-                .school("Trường Đại học Bách Khoa - ĐHQG TP.HCM")
-                .pageCount(15)
-                .year("2024")
-                .universityId(1L)
-                .universityName("Trường Đại học Bách Khoa - ĐHQG TP.HCM")
-                .facultyId(1L)
-                .subjectId(1L)
-                .likeCount(45)
-                .commentCount(5)
-                .downloadCount(120)
-                .viewCount(531)
-                .isLiked(false)
-                .isBookmarked(false)
-                .isPublic(true)
-                .createdAt(LocalDateTime.now())
-                .build();
+        DocumentEntity doc = documentRepository.findById(id)
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
+        
+        doc.setViewCount((doc.getViewCount() != null ? doc.getViewCount() : 0) + 1);
+        documentRepository.save(doc);
+        return toSummaryDto(doc);
     }
 
     @Override
