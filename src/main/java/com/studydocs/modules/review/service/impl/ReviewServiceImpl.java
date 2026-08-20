@@ -4,6 +4,8 @@ import com.studydocs.modules.review.dto.ReviewDto;
 import com.studydocs.modules.review.entity.DocumentReviewEntity;
 import com.studydocs.modules.review.repository.ReviewRepository;
 import com.studydocs.modules.review.service.ReviewService;
+import com.studydocs.shared.exception.AppException;
+import com.studydocs.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +21,15 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDto> getReviewsByDocument(String documentId) {
         return reviewRepository.findByDocumentId(documentId).stream()
-                .map(r -> ReviewDto.builder()
-                        .id(r.getId())
-                        .documentId(r.getDocumentId())
-                        .userId(r.getUserId())
-                        .rating(r.getRating())
-                        .comment(r.getComment())
-                        .createdAt(r.getCreatedAt())
-                        .build())
+                .map(this::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReviewDto getReviewById(String reviewId) {
+        DocumentReviewEntity review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+        return toDto(review);
     }
 
     @Override
@@ -40,14 +42,46 @@ public class ReviewServiceImpl implements ReviewService {
                 .build();
 
         review = reviewRepository.save(review);
+        return toDto(review);
+    }
 
+    @Override
+    public ReviewDto updateReview(String reviewId, String comment) {
+        DocumentReviewEntity review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+        if (comment != null) {
+            review.setComment(comment);
+        }
+        review = reviewRepository.save(review);
+        return toDto(review);
+    }
+
+    @Override
+    public void deleteReview(String reviewId) {
+        DocumentReviewEntity review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
+        reviewRepository.delete(review);
+    }
+
+    @Override
+    public List<ReviewDto> getReplies(String reviewId) {
+        if (!reviewRepository.existsById(reviewId)) {
+            throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
+        }
+        return reviewRepository.findAll().stream()
+                .filter(r -> reviewId.equals(r.getDocumentId()))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private ReviewDto toDto(DocumentReviewEntity r) {
         return ReviewDto.builder()
-                .id(review.getId())
-                .documentId(review.getDocumentId())
-                .userId(review.getUserId())
-                .rating(review.getRating())
-                .comment(review.getComment())
-                .createdAt(review.getCreatedAt())
+                .id(r.getId())
+                .documentId(r.getDocumentId())
+                .userId(r.getUserId())
+                .rating(r.getRating())
+                .comment(r.getComment())
+                .createdAt(r.getCreatedAt())
                 .build();
     }
 }

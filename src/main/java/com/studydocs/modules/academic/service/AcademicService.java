@@ -9,4 +9,6 @@ public interface AcademicService {
     List<AcademicDtos.FacultyDto> getFacultiesByUniversity(Long universityId);
     List<AcademicDtos.DepartmentDto> getDepartmentsByFaculty(Long facultyId);
     List<AcademicDtos.SubjectDto> getSubjectsByDepartment(Long departmentId);
+    AcademicDtos.UniversityDto createUniversity(AcademicDtos.CreateUniversityRequest request);
+    AcademicDtos.SubjectDto createSubject(AcademicDtos.CreateSubjectRequest request);
 }

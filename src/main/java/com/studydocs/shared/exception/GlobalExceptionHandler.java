@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Object> apiResponse = ApiResponse.error(
                 errorCode.getHttpStatus().value(),
-                errorCode.getCode(),
+                errorCode.name(),
                 exception.getMessage(),
                 traceId
         );
@@ -49,24 +49,22 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidationException(MethodArgumentNotValidException exception, HttpServletRequest request) {
         String traceId = getTraceId(request);
-        String enumKey = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
+        String errorMessage = exception.getFieldError() != null ? exception.getFieldError().getDefaultMessage() : "Invalid input payload";
         
         ErrorCode errorCode = ErrorCode.INVALID_REQUEST;
-        try {
-            if (enumKey != null) {
-                errorCode = ErrorCode.valueOf(enumKey);
+        if (errorMessage != null) {
+            try {
+                errorCode = ErrorCode.valueOf(errorMessage);
+            } catch (IllegalArgumentException e) {
+                // Giữ mã lỗi mặc định INVALID_REQUEST nếu message không phải tên enum ErrorCode
             }
-        } catch (IllegalArgumentException e) {
-            // Giữ mã lỗi mặc định INVALID_REQUEST nếu message không phải tên enum ErrorCode
         }
-
-        String errorMessage = Objects.requireNonNull(exception.getFieldError()).getDefaultMessage();
 
         log.warn("ValidationException [traceId: {}]: {}", traceId, errorMessage);
 
         ApiResponse<Object> apiResponse = ApiResponse.error(
                 errorCode.getHttpStatus().value(),
-                errorCode.getCode(),
+                errorCode.name(),
                 errorMessage,
                 traceId
         );
@@ -84,8 +82,26 @@ public class GlobalExceptionHandler {
 
         ApiResponse<Object> apiResponse = ApiResponse.error(
                 errorCode.getHttpStatus().value(),
-                errorCode.getCode(),
+                errorCode.name(),
                 errorCode.getMessage(),
+                traceId
+        );
+
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
+    }
+
+    /**
+     * Xử lý ngoại lệ chưa xác thực / Token hết hạn (Spring Security AuthenticationException).
+     */
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAuthenticationException(org.springframework.security.core.AuthenticationException exception, HttpServletRequest request) {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        String traceId = getTraceId(request);
+
+        ApiResponse<Object> apiResponse = ApiResponse.error(
+                errorCode.getHttpStatus().value(),
+                errorCode.name(),
+                exception.getMessage() != null ? exception.getMessage() : errorCode.getMessage(),
                 traceId
         );
 
@@ -103,8 +119,8 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.UNCATEGORIZED_EXCEPTION;
         ApiResponse<Object> apiResponse = ApiResponse.error(
                 errorCode.getHttpStatus().value(),
-                errorCode.getCode(),
-                exception.getMessage(),
+                errorCode.name(),
+                exception.getMessage() != null ? exception.getMessage() : errorCode.getMessage(),
                 traceId
         );
 

@@ -104,6 +104,7 @@ public class DataInitializer implements CommandLineRunner {
                         .downloadCount(100)
                         .viewCount(500)
                         .isPublic(true)
+                        .status(DocumentStatus.COMPLETED)
                         .build());
             }
             log.info("Initialized sample academic data successfully.");

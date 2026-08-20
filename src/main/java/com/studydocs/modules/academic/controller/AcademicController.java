@@ -28,7 +28,7 @@ public class AcademicController {
         return ApiResponse.success(academicService.getAllUniversities().stream()
                 .filter(u -> u.getId().equals(universityId))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/universities/{universityId}/faculties")
@@ -56,7 +56,7 @@ public class AcademicController {
         return ApiResponse.success(academicService.getAllUniversities().stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/public/subjects/id/{id}")
@@ -64,11 +64,29 @@ public class AcademicController {
         return ApiResponse.success(academicService.getSubjectsByDepartment(1L).stream()
                 .filter(s -> s.getId().equals(id))
                 .findFirst()
-                .orElse(null));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.ACADEMIC_NOT_FOUND)));
     }
 
     @GetMapping("/documents")
     public ApiResponse<List<DocumentSummaryDto>> getAcademicDocuments(@RequestParam(value = "q", required = false) String query) {
         return ApiResponse.success(documentService.searchDocuments(query));
+    }
+
+    @PostMapping("/universities")
+    public ApiResponse<AcademicDtos.UniversityDto> createUniversity(@RequestBody AcademicDtos.CreateUniversityRequest request) {
+        return ApiResponse.success(academicService.createUniversity(request));
+    }
+
+    @PostMapping("/subjects")
+    public ApiResponse<AcademicDtos.SubjectDto> createSubject(@RequestBody AcademicDtos.CreateSubjectRequest request) {
+        return ApiResponse.success(academicService.createSubject(request));
+    }
+
+    @PostMapping("/departments/{departmentId}/subjects")
+    public ApiResponse<AcademicDtos.SubjectDto> createSubjectForDepartment(@PathVariable Long departmentId, @RequestBody AcademicDtos.CreateSubjectRequest request) {
+        if (request.getDepartmentId() == null) {
+            request.setDepartmentId(departmentId);
+        }
+        return ApiResponse.success(academicService.createSubject(request));
     }
 }

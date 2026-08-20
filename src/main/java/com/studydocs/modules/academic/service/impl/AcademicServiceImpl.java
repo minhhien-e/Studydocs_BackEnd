@@ -1,6 +1,8 @@
 package com.studydocs.modules.academic.service.impl;
 
 import com.studydocs.modules.academic.dto.AcademicDtos;
+import com.studydocs.modules.academic.entity.SubjectEntity;
+import com.studydocs.modules.academic.entity.UniversityEntity;
 import com.studydocs.modules.academic.repository.DepartmentRepository;
 import com.studydocs.modules.academic.repository.FacultyRepository;
 import com.studydocs.modules.academic.repository.SubjectRepository;
@@ -66,5 +68,39 @@ public class AcademicServiceImpl implements AcademicService {
                         .departmentId(s.getDepartmentId())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public AcademicDtos.UniversityDto createUniversity(AcademicDtos.CreateUniversityRequest request) {
+        UniversityEntity entity = UniversityEntity.builder()
+                .name(request.getName())
+                .code(request.getCode())
+                .logoUrl(request.getLogoUrl())
+                .address(request.getAddress())
+                .build();
+        UniversityEntity saved = universityRepository.save(entity);
+        return AcademicDtos.UniversityDto.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .code(saved.getCode())
+                .logoUrl(saved.getLogoUrl())
+                .address(saved.getAddress())
+                .build();
+    }
+
+    @Override
+    public AcademicDtos.SubjectDto createSubject(AcademicDtos.CreateSubjectRequest request) {
+        SubjectEntity entity = SubjectEntity.builder()
+                .name(request.getName())
+                .code(request.getCode())
+                .departmentId(request.getDepartmentId())
+                .build();
+        SubjectEntity saved = subjectRepository.save(entity);
+        return AcademicDtos.SubjectDto.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .code(saved.getCode())
+                .departmentId(saved.getDepartmentId())
+                .build();
     }
 }

@@ -1,16 +1,21 @@
 package com.studydocs.modules.academic.service.impl;
 
+import com.studydocs.infras.storage.FileStorageService;
+import com.studydocs.modules.academic.dto.AcademicDtos;
 import com.studydocs.modules.academic.dto.DocumentSummaryDto;
 import com.studydocs.modules.academic.entity.DocumentEntity;
+import com.studydocs.modules.academic.entity.DocumentStatus;
 import com.studydocs.modules.academic.repository.DocumentRepository;
 import com.studydocs.modules.academic.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,58 +23,30 @@ import java.util.stream.Collectors;
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final FileStorageService fileStorageService;
 
     @Override
     public List<DocumentSummaryDto> getMostLiked(int limit) {
-        return documentRepository.findTop10ByIsPublicTrueOrderByLikeCountDesc().stream()
+        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByLikeCountDesc(DocumentStatus.COMPLETED).stream()
                 .map(this::toSummaryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<DocumentSummaryDto> getNewest(int limit) {
-        return documentRepository.findTop10ByIsPublicTrueOrderByCreatedAtDesc().stream()
+        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByCreatedAtDesc(DocumentStatus.COMPLETED).stream()
                 .map(this::toSummaryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public DocumentSummaryDto getDocumentById(String id) {
-        Optional<DocumentEntity> docOpt = documentRepository.findById(id);
-        if (docOpt.isPresent()) {
-            DocumentEntity doc = docOpt.get();
-            doc.setViewCount(doc.getViewCount() + 1);
-            documentRepository.save(doc);
-            return toSummaryDto(doc);
-        }
-
-        return DocumentSummaryDto.builder()
-                .id(id)
-                .title("Giáo trình Nhập môn Lập trình Java 17")
-                .description("Bài giảng chi tiết về ngôn ngữ Java, OOP và Spring Boot Framework.")
-                .fileUrl("https://example.com/java-tutorial.pdf")
-                .fileSize(1024500L)
-                .fileType("pdf")
-                .uploaderId("usr-admin-001")
-                .uploaderName("Admin User")
-                .thumbnail("https://example.com/java-tutorial.pdf")
-                .category("Công nghệ thông tin")
-                .school("Trường Đại học Bách Khoa - ĐHQG TP.HCM")
-                .pageCount(15)
-                .year("2024")
-                .universityId(1L)
-                .universityName("Trường Đại học Bách Khoa - ĐHQG TP.HCM")
-                .facultyId(1L)
-                .subjectId(1L)
-                .likeCount(45)
-                .commentCount(5)
-                .downloadCount(120)
-                .viewCount(531)
-                .isLiked(false)
-                .isBookmarked(false)
-                .isPublic(true)
-                .createdAt(LocalDateTime.now())
-                .build();
+        DocumentEntity doc = documentRepository.findById(id)
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
+        
+        doc.setViewCount((doc.getViewCount() != null ? doc.getViewCount() : 0) + 1);
+        documentRepository.save(doc);
+        return toSummaryDto(doc);
     }
 
     @Override
@@ -102,9 +79,120 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public AcademicDtos.DocumentInitiateResponse initiateDocumentUpload(AcademicDtos.InitiateDocumentUploadRequest request, String uploaderId) {
+        String mediaId = UUID.randomUUID().toString();
+        String uploadUrl = "/api/v1/media/" + mediaId + "/complete-upload";
+
+        DocumentEntity entity = DocumentEntity.builder()
+                .title(request.getTitle() != null ? request.getTitle() : "Untitled Document")
+                .description(request.getDescription())
+                .fileSize(request.getFileSize())
+                .fileType(request.getFileType() != null ? request.getFileType() : "application/pdf")
+                .uploaderId(uploaderId != null ? uploaderId : "anonymous")
+                .universityId(request.getUniversityId())
+                .facultyId(request.getFacultyId())
+                .subjectId(request.getSubjectId())
+                .isPublic(request.getIsPublic() != null ? request.getIsPublic() : true)
+                .status(DocumentStatus.PENDING)
+                .likeCount(0)
+                .downloadCount(0)
+                .viewCount(0)
+                .build();
+
+        DocumentEntity saved = documentRepository.save(entity);
+
+        return AcademicDtos.DocumentInitiateResponse.builder()
+                .documentId(saved.getId())
+                .mediaId(mediaId)
+                .uploadUrl(uploadUrl)
+                .status(DocumentStatus.PENDING.name())
+                .build();
+    }
+
+    @Override
+    public DocumentSummaryDto completeDocumentUpload(String documentId, AcademicDtos.CompleteDocumentUploadRequest request) {
+        DocumentEntity doc = documentRepository.findById(documentId)
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
+
+        String resolvedFileUrl = request.getFileUrl();
+        if (resolvedFileUrl == null || resolvedFileUrl.trim().isEmpty()) {
+            String mediaId = request.getMediaId() != null ? request.getMediaId() : UUID.randomUUID().toString();
+            resolvedFileUrl = "/api/v1/media/files/" + mediaId + ".pdf";
+        }
+
+        doc.setFileUrl(resolvedFileUrl);
+        if (request.getFileSize() != null) {
+            doc.setFileSize(request.getFileSize());
+        }
+        if (request.getFileType() != null) {
+            doc.setFileType(request.getFileType());
+        }
+        doc.setStatus(DocumentStatus.COMPLETED);
+
+        DocumentEntity saved = documentRepository.save(doc);
+        return toSummaryDto(saved);
+    }
+
+    @Override
+    public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long subjectId, Boolean isPublic, String uploaderId) {
+        String storedFileName = fileStorageService.storeFile(file);
+        String fileUrl = "/api/v1/media/files/" + storedFileName;
+        Long fileSize = file != null ? file.getSize() : 0L;
+        String fileType = file != null ? file.getContentType() : "application/pdf";
+
+        String docTitle = (title != null && !title.trim().isEmpty()) 
+                ? title 
+                : (file != null ? file.getOriginalFilename() : "Untitled Document");
+
+        DocumentEntity entity = DocumentEntity.builder()
+                .title(docTitle)
+                .description(description)
+                .fileUrl(fileUrl)
+                .fileSize(fileSize)
+                .fileType(fileType)
+                .uploaderId(uploaderId != null ? uploaderId : "anonymous")
+                .universityId(universityId)
+                .facultyId(facultyId)
+                .subjectId(subjectId)
+                .isPublic(isPublic != null ? isPublic : true)
+                .status(DocumentStatus.COMPLETED)
+                .likeCount(0)
+                .downloadCount(0)
+                .viewCount(0)
+                .build();
+
+        DocumentEntity saved = documentRepository.save(entity);
+        return toSummaryDto(saved);
+    }
+
+    @Override
+    public DocumentSummaryDto createDocument(AcademicDtos.CreateDocumentRequest request, String uploaderId) {
+        DocumentEntity entity = DocumentEntity.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .fileUrl(request.getFileUrl())
+                .fileSize(request.getFileSize())
+                .fileType(request.getFileType())
+                .uploaderId(uploaderId != null ? uploaderId : "anonymous")
+                .universityId(request.getUniversityId())
+                .facultyId(request.getFacultyId())
+                .subjectId(request.getSubjectId())
+                .isPublic(request.getIsPublic() != null ? request.getIsPublic() : true)
+                .status(DocumentStatus.COMPLETED)
+                .likeCount(0)
+                .downloadCount(0)
+                .viewCount(0)
+                .build();
+
+        DocumentEntity saved = documentRepository.save(entity);
+        return toSummaryDto(saved);
+    }
+
     private DocumentSummaryDto toSummaryDto(DocumentEntity doc) {
         String schoolName = doc.getUniversityId() != null ? "Đại học Bách Khoa TP.HCM" : "Đại học Quốc Gia";
         String thumbnail = doc.getFileUrl() != null ? doc.getFileUrl() : "https://via.placeholder.com/150";
+        String statusStr = doc.getStatus() != null ? doc.getStatus().name() : DocumentStatus.COMPLETED.name();
 
         return DocumentSummaryDto.builder()
                 .id(doc.getId())
@@ -131,6 +219,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .isLiked(false)
                 .isBookmarked(false)
                 .isPublic(doc.getIsPublic())
+                .status(statusStr)
                 .createdAt(doc.getCreatedAt())
                 .build();
     }

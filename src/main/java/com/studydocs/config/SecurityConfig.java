@@ -47,6 +47,26 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setStatus(401);
+                            String json = String.format(
+                                    "{\"statusCode\":401,\"errorCode\":\"UNAUTHORIZED\",\"message\":\"%s\",\"data\":null}",
+                                    authException.getMessage() != null ? authException.getMessage() : "Unauthorized access"
+                            );
+                            response.getWriter().write(json);
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.setStatus(403);
+                            String json = String.format(
+                                    "{\"statusCode\":403,\"errorCode\":\"FORBIDDEN\",\"message\":\"%s\",\"data\":null}",
+                                    accessDeniedException.getMessage() != null ? accessDeniedException.getMessage() : "Access forbidden"
+                            );
+                            response.getWriter().write(json);
+                        })
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

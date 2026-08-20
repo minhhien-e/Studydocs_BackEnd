@@ -1,17 +1,20 @@
 package com.studydocs.modules.academic.controller;
 
+import com.studydocs.modules.academic.dto.AcademicDtos;
 import com.studydocs.modules.academic.dto.DocumentSummaryDto;
 import com.studydocs.modules.academic.service.DocumentService;
 import com.studydocs.shared.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Controller xử lý tài liệu học tập (tìm kiếm, công khai, cá nhân, bookmark, download, tương tác).
+ * Controller xử lý tài liệu học tập (tìm kiếm, công khai, cá nhân, bookmark, download, tương tác, upload).
  *
  * @author StudyDocs Team
  * @since 1.0.0
@@ -22,6 +25,44 @@ import java.util.Map;
 public class DocumentController {
 
     private final DocumentService documentService;
+
+    @PostMapping("/initiate")
+    public ApiResponse<AcademicDtos.DocumentInitiateResponse> initiateDocumentUpload(
+            @RequestBody AcademicDtos.InitiateDocumentUploadRequest request,
+            Authentication authentication) {
+        String uploaderId = authentication != null ? authentication.getName() : "anonymous";
+        return ApiResponse.success(documentService.initiateDocumentUpload(request, uploaderId));
+    }
+
+    @PostMapping("/{documentId}/complete-upload")
+    public ApiResponse<DocumentSummaryDto> completeDocumentUpload(
+            @PathVariable String documentId,
+            @RequestBody(required = false) AcademicDtos.CompleteDocumentUploadRequest request) {
+        if (request == null) {
+            request = new AcademicDtos.CompleteDocumentUploadRequest();
+        }
+        return ApiResponse.success(documentService.completeDocumentUpload(documentId, request));
+    }
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<DocumentSummaryDto> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "universityId", required = false) Long universityId,
+            @RequestParam(value = "facultyId", required = false) Long facultyId,
+            @RequestParam(value = "subjectId", required = false) Long subjectId,
+            @RequestParam(value = "isPublic", required = false, defaultValue = "true") Boolean isPublic,
+            Authentication authentication) {
+        String uploaderId = authentication != null ? authentication.getName() : "anonymous";
+        return ApiResponse.success(documentService.uploadDocument(file, title, description, universityId, facultyId, subjectId, isPublic, uploaderId));
+    }
+
+    @PostMapping
+    public ApiResponse<DocumentSummaryDto> createDocument(@RequestBody AcademicDtos.CreateDocumentRequest request, Authentication authentication) {
+        String uploaderId = authentication != null ? authentication.getName() : "anonymous";
+        return ApiResponse.success(documentService.createDocument(request, uploaderId));
+    }
 
     @GetMapping
     public ApiResponse<List<DocumentSummaryDto>> getAllDocuments(@RequestParam(value = "q", required = false) String query) {
