@@ -51,11 +51,16 @@ public class DocumentController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "universityId", required = false) Long universityId,
             @RequestParam(value = "facultyId", required = false) Long facultyId,
+            @RequestParam(value = "departmentId", required = false) Long departmentId,
             @RequestParam(value = "subjectId", required = false) Long subjectId,
+            @RequestParam(value = "schoolYear", required = false) String schoolYear,
+            @RequestParam(value = "school_year", required = false) String schoolYearSnake,
+            @RequestParam(value = "year", required = false) String year,
             @RequestParam(value = "isPublic", required = false, defaultValue = "true") Boolean isPublic,
             Authentication authentication) {
         String uploaderId = authentication != null ? authentication.getName() : "anonymous";
-        return ApiResponse.success(documentService.uploadDocument(file, title, description, universityId, facultyId, subjectId, isPublic, uploaderId));
+        String finalSchoolYear = schoolYear != null ? schoolYear : (schoolYearSnake != null ? schoolYearSnake : year);
+        return ApiResponse.success(documentService.uploadDocument(file, title, description, universityId, facultyId, departmentId, subjectId, finalSchoolYear, isPublic, uploaderId));
     }
 
     @PostMapping

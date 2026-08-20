@@ -35,6 +35,7 @@ public class DocumentSummaryDto {
     private Long universityId;
     private String universityName;
     private Long facultyId;
+    private Long departmentId;
     private Long subjectId;
     
     @Builder.Default

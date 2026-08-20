@@ -83,7 +83,9 @@ public class AcademicDtos {
         private String fileType;
         private Long universityId;
         private Long facultyId;
+        private Long departmentId;
         private Long subjectId;
+        private String schoolYear;
         private Boolean isPublic;
     }
 
@@ -96,7 +98,9 @@ public class AcademicDtos {
         private String description;
         private Long universityId;
         private Long facultyId;
+        private Long departmentId;
         private Long subjectId;
+        private String schoolYear;
         private Boolean isPublic;
         private String fileName;
         private Long fileSize;

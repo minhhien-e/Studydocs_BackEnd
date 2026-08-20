@@ -6,7 +6,13 @@ import com.studydocs.modules.academic.dto.DocumentSummaryDto;
 import com.studydocs.modules.academic.entity.DocumentEntity;
 import com.studydocs.modules.academic.entity.DocumentStatus;
 import com.studydocs.modules.academic.repository.DocumentRepository;
+import com.studydocs.modules.academic.repository.SubjectRepository;
+import com.studydocs.modules.academic.repository.UniversityRepository;
 import com.studydocs.modules.academic.service.DocumentService;
+import com.studydocs.modules.user.repository.UserRepository;
+import com.studydocs.modules.user.entity.UserEntity;
+import com.studydocs.modules.academic.entity.UniversityEntity;
+import com.studydocs.modules.academic.entity.SubjectEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +30,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
     private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
+    private final UniversityRepository universityRepository;
+    private final SubjectRepository subjectRepository;
 
     @Override
     public List<DocumentSummaryDto> getMostLiked(int limit) {
@@ -92,7 +101,9 @@ public class DocumentServiceImpl implements DocumentService {
                 .uploaderId(uploaderId != null ? uploaderId : "anonymous")
                 .universityId(request.getUniversityId())
                 .facultyId(request.getFacultyId())
+                .departmentId(request.getDepartmentId())
                 .subjectId(request.getSubjectId())
+                .schoolYear(request.getSchoolYear())
                 .isPublic(request.getIsPublic() != null ? request.getIsPublic() : true)
                 .status(DocumentStatus.PENDING)
                 .likeCount(0)
@@ -135,7 +146,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long subjectId, Boolean isPublic, String uploaderId) {
+    public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId) {
         String storedFileName = fileStorageService.storeFile(file);
         String fileUrl = "/api/v1/media/files/" + storedFileName;
         Long fileSize = file != null ? file.getSize() : 0L;
@@ -154,7 +165,9 @@ public class DocumentServiceImpl implements DocumentService {
                 .uploaderId(uploaderId != null ? uploaderId : "anonymous")
                 .universityId(universityId)
                 .facultyId(facultyId)
+                .departmentId(departmentId)
                 .subjectId(subjectId)
+                .schoolYear(schoolYear)
                 .isPublic(isPublic != null ? isPublic : true)
                 .status(DocumentStatus.COMPLETED)
                 .likeCount(0)
@@ -177,7 +190,9 @@ public class DocumentServiceImpl implements DocumentService {
                 .uploaderId(uploaderId != null ? uploaderId : "anonymous")
                 .universityId(request.getUniversityId())
                 .facultyId(request.getFacultyId())
+                .departmentId(request.getDepartmentId())
                 .subjectId(request.getSubjectId())
+                .schoolYear(request.getSchoolYear())
                 .isPublic(request.getIsPublic() != null ? request.getIsPublic() : true)
                 .status(DocumentStatus.COMPLETED)
                 .likeCount(0)
@@ -190,7 +205,27 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     private DocumentSummaryDto toSummaryDto(DocumentEntity doc) {
-        String schoolName = doc.getUniversityId() != null ? "Đại học Bách Khoa TP.HCM" : "Đại học Quốc Gia";
+        String schoolName = "Đại học Quốc Gia";
+        if (doc.getUniversityId() != null) {
+            schoolName = universityRepository.findById(doc.getUniversityId())
+                    .map(UniversityEntity::getName)
+                    .orElse("Đại học Quốc Gia");
+        }
+
+        String uploaderName = "Admin User";
+        if (doc.getUploaderId() != null) {
+            uploaderName = userRepository.findById(doc.getUploaderId())
+                    .map(UserEntity::getFullName)
+                    .orElse("Admin User");
+        }
+
+        String category = "Chung";
+        if (doc.getSubjectId() != null) {
+            category = subjectRepository.findById(doc.getSubjectId())
+                    .map(SubjectEntity::getName)
+                    .orElse("Chung");
+        }
+
         String thumbnail = doc.getFileUrl() != null ? doc.getFileUrl() : "https://via.placeholder.com/150";
         String statusStr = doc.getStatus() != null ? doc.getStatus().name() : DocumentStatus.COMPLETED.name();
 
@@ -202,18 +237,19 @@ public class DocumentServiceImpl implements DocumentService {
                 .fileSize(doc.getFileSize())
                 .fileType(doc.getFileType())
                 .uploaderId(doc.getUploaderId())
-                .uploaderName("Admin User")
+                .uploaderName(uploaderName)
                 .thumbnail(thumbnail)
-                .category("Công nghệ thông tin")
+                .category(category)
                 .school(schoolName)
-                .pageCount(15)
-                .year("2024")
+                .pageCount(15) // Keep hardcoded as it requires PDF parsing
+                .year(doc.getSchoolYear() != null ? doc.getSchoolYear() : "2024")
                 .universityId(doc.getUniversityId())
                 .universityName(schoolName)
                 .facultyId(doc.getFacultyId())
+                .departmentId(doc.getDepartmentId())
                 .subjectId(doc.getSubjectId())
                 .likeCount(doc.getLikeCount() != null ? doc.getLikeCount() : 0)
-                .commentCount(5)
+                .commentCount(0) // Keep hardcoded for now
                 .downloadCount(doc.getDownloadCount() != null ? doc.getDownloadCount() : 0)
                 .viewCount(doc.getViewCount() != null ? doc.getViewCount() : 0)
                 .isLiked(false)

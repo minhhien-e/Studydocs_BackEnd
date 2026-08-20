@@ -17,6 +17,6 @@ public interface DocumentService {
     void incrementDownloadCount(String documentId);
     AcademicDtos.DocumentInitiateResponse initiateDocumentUpload(AcademicDtos.InitiateDocumentUploadRequest request, String uploaderId);
     DocumentSummaryDto completeDocumentUpload(String documentId, AcademicDtos.CompleteDocumentUploadRequest request);
-    DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long subjectId, Boolean isPublic, String uploaderId);
+    DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId);
     DocumentSummaryDto createDocument(AcademicDtos.CreateDocumentRequest request, String uploaderId);
 }
