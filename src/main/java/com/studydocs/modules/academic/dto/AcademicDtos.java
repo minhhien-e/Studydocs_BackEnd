@@ -49,4 +49,79 @@ public class AcademicDtos {
         private String code;
         private Long departmentId;
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateUniversityRequest {
+        private String name;
+        private String code;
+        private String logoUrl;
+        private String address;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateSubjectRequest {
+        private String name;
+        private String code;
+        private Long departmentId;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateDocumentRequest {
+        private String title;
+        private String description;
+        private String fileUrl;
+        private Long fileSize;
+        private String fileType;
+        private Long universityId;
+        private Long facultyId;
+        private Long subjectId;
+        private Boolean isPublic;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InitiateDocumentUploadRequest {
+        private String title;
+        private String description;
+        private Long universityId;
+        private Long facultyId;
+        private Long subjectId;
+        private Boolean isPublic;
+        private String fileName;
+        private Long fileSize;
+        private String fileType;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DocumentInitiateResponse {
+        private String documentId;
+        private String mediaId;
+        private String uploadUrl;
+        private String status;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CompleteDocumentUploadRequest {
+        private String mediaId;
+        private String fileUrl;
+        private Long fileSize;
+        private String fileType;
+    }
 }

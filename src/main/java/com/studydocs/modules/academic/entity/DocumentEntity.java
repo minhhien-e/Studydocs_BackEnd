@@ -23,7 +23,7 @@ public class DocumentEntity extends BaseEntity {
     @Column(length = 2000)
     private String description;
 
-    @Column(name = "file_url", nullable = false, length = 1000)
+    @Column(name = "file_url", length = 1000)
     private String fileUrl;
 
     @Column(name = "file_size")
@@ -43,6 +43,11 @@ public class DocumentEntity extends BaseEntity {
 
     @Column(name = "subject_id")
     private Long subjectId;
+
+    @Column(name = "status", length = 30)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private DocumentStatus status = DocumentStatus.PENDING;
 
     @Column(name = "like_count")
     @Builder.Default

@@ -71,4 +71,22 @@ public class AcademicController {
     public ApiResponse<List<DocumentSummaryDto>> getAcademicDocuments(@RequestParam(value = "q", required = false) String query) {
         return ApiResponse.success(documentService.searchDocuments(query));
     }
+
+    @PostMapping("/universities")
+    public ApiResponse<AcademicDtos.UniversityDto> createUniversity(@RequestBody AcademicDtos.CreateUniversityRequest request) {
+        return ApiResponse.success(academicService.createUniversity(request));
+    }
+
+    @PostMapping("/subjects")
+    public ApiResponse<AcademicDtos.SubjectDto> createSubject(@RequestBody AcademicDtos.CreateSubjectRequest request) {
+        return ApiResponse.success(academicService.createSubject(request));
+    }
+
+    @PostMapping("/departments/{departmentId}/subjects")
+    public ApiResponse<AcademicDtos.SubjectDto> createSubjectForDepartment(@PathVariable Long departmentId, @RequestBody AcademicDtos.CreateSubjectRequest request) {
+        if (request.getDepartmentId() == null) {
+            request.setDepartmentId(departmentId);
+        }
+        return ApiResponse.success(academicService.createSubject(request));
+    }
 }

@@ -58,5 +58,7 @@ public class DocumentSummaryDto {
     @Builder.Default
     private Boolean isPublic = true;
     
+    private String status;
+
     private LocalDateTime createdAt;
 }
