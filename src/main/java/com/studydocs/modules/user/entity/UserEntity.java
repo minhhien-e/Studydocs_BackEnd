@@ -75,4 +75,24 @@ public class UserEntity extends BaseEntity {
     )
     @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
+
+    @Column(name = "posts_count")
+    @Builder.Default
+    private Integer postsCount = 0;
+
+    @Column(name = "likes_count")
+    @Builder.Default
+    private Integer likesCount = 0;
+
+    @Column(name = "comments_count")
+    @Builder.Default
+    private Integer commentsCount = 0;
+
+    @Column(name = "followers_count")
+    @Builder.Default
+    private Integer followersCount = 0;
+
+    @Column(name = "following_count")
+    @Builder.Default
+    private Integer followingCount = 0;
 }

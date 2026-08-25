@@ -15,6 +15,8 @@ public class ReviewDto {
     private String id;
     private String documentId;
     private String userId;
+    private String username;
+    private String userAvatar;
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;

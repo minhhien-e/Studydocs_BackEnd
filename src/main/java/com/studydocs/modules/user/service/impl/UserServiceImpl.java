@@ -9,8 +9,11 @@ import com.studydocs.modules.user.service.UserService;
 import com.studydocs.shared.exception.AppException;
 import com.studydocs.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import com.studydocs.modules.system.service.MediaService;
+import com.studydocs.modules.system.dto.SystemDtos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final MediaService mediaService;
 
     @Override
     public UserDto getCurrentUser(String userId) {
@@ -62,6 +66,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public UserDto updateProfileImage(String userId, MultipartFile file) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        SystemDtos.MediaResponse mediaResponse = mediaService.uploadFile(file, userId);
+        user.setAvatarUrl(mediaResponse.getFileUrl());
+
+        user = userRepository.save(user);
+        return toDto(user);
+    }
+
+    @Override
     public List<UserDto> searchUsers(String query) {
         return userRepository.findAll().stream()
                 .filter(u -> (u.getFullName() != null && u.getFullName().toLowerCase().contains(query.toLowerCase()))
@@ -93,11 +110,11 @@ public class UserServiceImpl implements UserService {
                 .facultyId(user.getFacultyId())
                 .major(user.getMajor())
                 .isPrivate(user.getIsPrivate())
-                .followersCount(0)
-                .followingCount(0)
-                .likesCount(0)
-                .postsCount(0)
-                .commentsCount(0)
+                .followersCount(user.getFollowersCount() != null ? user.getFollowersCount() : 0)
+                .followingCount(user.getFollowingCount() != null ? user.getFollowingCount() : 0)
+                .likesCount(user.getLikesCount() != null ? user.getLikesCount() : 0)
+                .postsCount(user.getPostsCount() != null ? user.getPostsCount() : 0)
+                .commentsCount(user.getCommentsCount() != null ? user.getCommentsCount() : 0)
                 .roles(roleNames)
                 .build();
     }

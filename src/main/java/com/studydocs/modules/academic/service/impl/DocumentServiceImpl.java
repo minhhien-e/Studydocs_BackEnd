@@ -1,6 +1,5 @@
 package com.studydocs.modules.academic.service.impl;
 
-import com.studydocs.infras.storage.FileStorageService;
 import com.studydocs.modules.academic.dto.AcademicDtos;
 import com.studydocs.modules.academic.dto.DocumentSummaryDto;
 import com.studydocs.modules.academic.entity.DocumentEntity;
@@ -13,6 +12,12 @@ import com.studydocs.modules.user.repository.UserRepository;
 import com.studydocs.modules.user.entity.UserEntity;
 import com.studydocs.modules.academic.entity.UniversityEntity;
 import com.studydocs.modules.academic.entity.SubjectEntity;
+import com.studydocs.modules.academic.entity.DocumentInteractionEntity;
+import com.studydocs.modules.academic.repository.DocumentInteractionRepository;
+import com.studydocs.modules.system.service.MediaService;
+import com.studydocs.modules.system.dto.SystemDtos;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +34,8 @@ import java.util.stream.Collectors;
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
-    private final FileStorageService fileStorageService;
+    private final DocumentInteractionRepository documentInteractionRepository;
+    private final MediaService mediaService;
     private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
     private final SubjectRepository subjectRepository;
@@ -113,6 +119,13 @@ public class DocumentServiceImpl implements DocumentService {
 
         DocumentEntity saved = documentRepository.save(entity);
 
+        if (uploaderId != null && !"anonymous".equals(uploaderId)) {
+            userRepository.findById(uploaderId).ifPresent(user -> {
+                user.setPostsCount((user.getPostsCount() != null ? user.getPostsCount() : 0) + 1);
+                userRepository.save(user);
+            });
+        }
+
         return AcademicDtos.DocumentInitiateResponse.builder()
                 .documentId(saved.getId())
                 .mediaId(mediaId)
@@ -147,8 +160,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId) {
-        String storedFileName = fileStorageService.storeFile(file);
-        String fileUrl = "/api/v1/media/files/" + storedFileName;
+        SystemDtos.MediaResponse mediaResponse = mediaService.uploadFile(file, uploaderId != null ? uploaderId : "anonymous");
+        String fileUrl = mediaResponse.getFileUrl();
         Long fileSize = file != null ? file.getSize() : 0L;
         String fileType = file != null ? file.getContentType() : "application/pdf";
 
@@ -176,6 +189,12 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         DocumentEntity saved = documentRepository.save(entity);
+        if (uploaderId != null && !"anonymous".equals(uploaderId)) {
+            userRepository.findById(uploaderId).ifPresent(user -> {
+                user.setPostsCount((user.getPostsCount() != null ? user.getPostsCount() : 0) + 1);
+                userRepository.save(user);
+            });
+        }
         return toSummaryDto(saved);
     }
 
@@ -201,7 +220,58 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         DocumentEntity saved = documentRepository.save(entity);
+        if (uploaderId != null && !"anonymous".equals(uploaderId)) {
+            userRepository.findById(uploaderId).ifPresent(user -> {
+                user.setPostsCount((user.getPostsCount() != null ? user.getPostsCount() : 0) + 1);
+                userRepository.save(user);
+            });
+        }
         return toSummaryDto(saved);
+    }
+
+    @Override
+    public void handleInteraction(String documentId, String type, String userId) {
+        if ("anonymous".equals(userId)) return;
+        
+        Optional<DocumentEntity> docOpt = documentRepository.findById(documentId);
+        if (docOpt.isPresent()) {
+            DocumentEntity doc = docOpt.get();
+            Optional<DocumentInteractionEntity> existingInteractionOpt = 
+                documentInteractionRepository.findByDocumentIdAndUserIdAndType(documentId, userId, type);
+                
+            if (existingInteractionOpt.isPresent()) {
+                // Toggle off (Unlike / Undislike)
+                documentInteractionRepository.delete(existingInteractionOpt.get());
+                if ("LIKE".equalsIgnoreCase(type)) {
+                    int current = doc.getLikeCount() != null ? doc.getLikeCount() : 0;
+                    doc.setLikeCount(Math.max(0, current - 1));
+                    
+                    userRepository.findById(userId).ifPresent(user -> {
+                        int userLikes = user.getLikesCount() != null ? user.getLikesCount() : 0;
+                        user.setLikesCount(Math.max(0, userLikes - 1));
+                        userRepository.save(user);
+                    });
+                }
+            } else {
+                // Toggle on (Like / Dislike)
+                DocumentInteractionEntity interaction = DocumentInteractionEntity.builder()
+                        .documentId(documentId)
+                        .userId(userId)
+                        .type(type.toUpperCase())
+                        .build();
+                documentInteractionRepository.save(interaction);
+                
+                if ("LIKE".equalsIgnoreCase(type)) {
+                    doc.setLikeCount((doc.getLikeCount() != null ? doc.getLikeCount() : 0) + 1);
+                    
+                    userRepository.findById(userId).ifPresent(user -> {
+                        user.setLikesCount((user.getLikesCount() != null ? user.getLikesCount() : 0) + 1);
+                        userRepository.save(user);
+                    });
+                }
+            }
+            documentRepository.save(doc);
+        }
     }
 
     private DocumentSummaryDto toSummaryDto(DocumentEntity doc) {
@@ -229,6 +299,15 @@ public class DocumentServiceImpl implements DocumentService {
         String thumbnail = doc.getFileUrl() != null ? doc.getFileUrl() : "https://via.placeholder.com/150";
         String statusStr = doc.getStatus() != null ? doc.getStatus().name() : DocumentStatus.COMPLETED.name();
 
+        boolean isLiked = false;
+        boolean isBookmarked = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
+            String currentUserId = auth.getName();
+            isLiked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId, "LIKE");
+            isBookmarked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId, "BOOKMARK");
+        }
+
         return DocumentSummaryDto.builder()
                 .id(doc.getId())
                 .title(doc.getTitle())
@@ -249,11 +328,11 @@ public class DocumentServiceImpl implements DocumentService {
                 .departmentId(doc.getDepartmentId())
                 .subjectId(doc.getSubjectId())
                 .likeCount(doc.getLikeCount() != null ? doc.getLikeCount() : 0)
-                .commentCount(0) // Keep hardcoded for now
+                .commentCount(doc.getCommentCount() != null ? doc.getCommentCount() : 0)
                 .downloadCount(doc.getDownloadCount() != null ? doc.getDownloadCount() : 0)
                 .viewCount(doc.getViewCount() != null ? doc.getViewCount() : 0)
-                .isLiked(false)
-                .isBookmarked(false)
+                .isLiked(isLiked)
+                .isBookmarked(isBookmarked)
                 .isPublic(doc.getIsPublic())
                 .status(statusStr)
                 .createdAt(doc.getCreatedAt())

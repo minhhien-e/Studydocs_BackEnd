@@ -129,7 +129,9 @@ public class DocumentController {
     }
 
     @PostMapping("/{documentId}/bookmark")
-    public ApiResponse<String> bookmarkDocument(@PathVariable String documentId) {
+    public ApiResponse<String> bookmarkDocument(@PathVariable String documentId, Authentication authentication) {
+        String userId = authentication != null ? authentication.getName() : "anonymous";
+        documentService.handleInteraction(documentId, "BOOKMARK", userId);
         return ApiResponse.success("Document bookmarked");
     }
 
@@ -140,8 +142,10 @@ public class DocumentController {
     }
 
     @PostMapping("/{documentId}/interactions")
-    public ApiResponse<Map<String, Object>> interactWithDocument(@PathVariable String documentId, @RequestBody Map<String, Object> body) {
+    public ApiResponse<Map<String, Object>> interactWithDocument(@PathVariable String documentId, @RequestBody Map<String, Object> body, Authentication authentication) {
         String type = (String) body.getOrDefault("type", "LIKE");
+        String userId = authentication != null ? authentication.getName() : "anonymous";
+        documentService.handleInteraction(documentId, type, userId);
         return ApiResponse.success(Map.of(
                 "documentId", documentId,
                 "type", type,

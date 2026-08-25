@@ -7,6 +7,8 @@ import com.studydocs.shared.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -31,9 +33,9 @@ public class UserController {
         return ApiResponse.success(userService.updateProfile(currentUserId, request));
     }
 
-    @PostMapping("/{userId}/image")
-    public ApiResponse<UserDto> updateProfileImage(@PathVariable String userId, @RequestBody LoginRequest.UpdateProfile request) {
-        return ApiResponse.success(userService.updateProfile(userId, request));
+    @PostMapping(value = "/{userId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<UserDto> updateProfileImage(@PathVariable String userId, @RequestParam("file") MultipartFile file) {
+        return ApiResponse.success(userService.updateProfileImage(userId, file));
     }
 
     @GetMapping({"/{userId}", "/{userId}/other", "/public/profile/{userId}"})

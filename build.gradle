@@ -45,6 +45,9 @@ dependencies {
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Cloudinary
+    implementation 'com.cloudinary:cloudinary-http44:1.36.0'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'

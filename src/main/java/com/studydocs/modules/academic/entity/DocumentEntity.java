@@ -67,6 +67,10 @@ public class DocumentEntity extends BaseEntity {
     @Builder.Default
     private Integer viewCount = 0;
 
+    @Column(name = "comment_count")
+    @Builder.Default
+    private Integer commentCount = 0;
+
     @Column(name = "is_public")
     @Builder.Default
     private Boolean isPublic = true;
