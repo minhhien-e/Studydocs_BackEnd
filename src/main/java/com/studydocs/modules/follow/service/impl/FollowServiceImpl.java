@@ -3,6 +3,7 @@ package com.studydocs.modules.follow.service.impl;
 import com.studydocs.modules.follow.entity.UserFollowEntity;
 import com.studydocs.modules.follow.repository.FollowRepository;
 import com.studydocs.modules.follow.service.FollowService;
+import com.studydocs.modules.follow.event.publisher.FollowEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class FollowServiceImpl implements FollowService {
 
     private final FollowRepository followRepository;
+    private final FollowEventPublisher followEventPublisher;
 
     @Override
     public void followUser(String followerId, String targetUserId) {
@@ -28,12 +30,17 @@ public class FollowServiceImpl implements FollowService {
                 .followingId(targetUserId)
                 .build();
         followRepository.save(follow);
+        
+        followEventPublisher.publishFollowEvent(followerId, targetUserId, true);
     }
 
     @Override
     public void unfollowUser(String followerId, String targetUserId) {
         followRepository.findByFollowerIdAndFollowingId(followerId, targetUserId)
-                .ifPresent(followRepository::delete);
+                .ifPresent(follow -> {
+                    followRepository.delete(follow);
+                    followEventPublisher.publishFollowEvent(followerId, targetUserId, false);
+                });
     }
 
     @Override

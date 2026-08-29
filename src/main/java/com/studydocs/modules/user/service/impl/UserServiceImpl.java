@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         Set<String> roleNames = user.getRoles() != null ?
                 user.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet()) : Collections.emptySet();
 
-        String school = user.getUniversityName() != null ? user.getUniversityName() : "Chưa có trường";
+        String school = user.getUniversityName();
 
         return UserDto.builder()
                 .id(user.getId())
@@ -110,11 +110,11 @@ public class UserServiceImpl implements UserService {
                 .facultyId(user.getFacultyId())
                 .major(user.getMajor())
                 .isPrivate(user.getIsPrivate())
-                .followersCount(user.getFollowersCount() != null ? user.getFollowersCount() : 0)
-                .followingCount(user.getFollowingCount() != null ? user.getFollowingCount() : 0)
-                .likesCount(user.getLikesCount() != null ? user.getLikesCount() : 0)
-                .postsCount(user.getPostsCount() != null ? user.getPostsCount() : 0)
-                .commentsCount(user.getCommentsCount() != null ? user.getCommentsCount() : 0)
+                .followersCount(user.getFollowersCount())
+                .followingCount(user.getFollowingCount())
+                .likesCount(user.getLikesCount())
+                .postsCount(user.getPostsCount())
+                .commentsCount(user.getCommentsCount())
                 .roles(roleNames)
                 .build();
     }

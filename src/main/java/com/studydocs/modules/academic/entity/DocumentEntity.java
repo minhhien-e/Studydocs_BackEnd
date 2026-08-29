@@ -74,4 +74,7 @@ public class DocumentEntity extends BaseEntity {
     @Column(name = "is_public")
     @Builder.Default
     private Boolean isPublic = true;
+
+    @Column(name = "page_count")
+    private Integer pageCount;
 }

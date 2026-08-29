@@ -48,6 +48,12 @@ dependencies {
     // Cloudinary
     implementation 'com.cloudinary:cloudinary-http44:1.36.0'
 
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // PDF Processing
+    implementation 'org.apache.pdfbox:pdfbox:3.0.3'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'

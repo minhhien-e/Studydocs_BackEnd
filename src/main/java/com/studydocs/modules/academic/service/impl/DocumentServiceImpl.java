@@ -16,6 +16,7 @@ import com.studydocs.modules.academic.entity.DocumentInteractionEntity;
 import com.studydocs.modules.academic.repository.DocumentInteractionRepository;
 import com.studydocs.modules.system.service.MediaService;
 import com.studydocs.modules.system.dto.SystemDtos;
+import com.studydocs.modules.academic.event.publisher.DocumentEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +37,10 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final DocumentInteractionRepository documentInteractionRepository;
     private final MediaService mediaService;
-    private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
     private final SubjectRepository subjectRepository;
+    private final DocumentEventPublisher documentEventPublisher;
+    private final UserRepository userRepository;
 
     @Override
     public List<DocumentSummaryDto> getMostLiked(int limit) {
@@ -155,6 +157,10 @@ public class DocumentServiceImpl implements DocumentService {
         doc.setStatus(DocumentStatus.COMPLETED);
 
         DocumentEntity saved = documentRepository.save(doc);
+
+        // Publish event bất đồng bộ để đếm số trang PDF và cập nhật postsCount
+        documentEventPublisher.publishPageCountEvent(saved.getId(), saved.getFileUrl(), saved.getUploaderId());
+
         return toSummaryDto(saved);
     }
 
@@ -189,12 +195,10 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         DocumentEntity saved = documentRepository.save(entity);
-        if (uploaderId != null && !"anonymous".equals(uploaderId)) {
-            userRepository.findById(uploaderId).ifPresent(user -> {
-                user.setPostsCount((user.getPostsCount() != null ? user.getPostsCount() : 0) + 1);
-                userRepository.save(user);
-            });
-        }
+
+        // Publish event bất đồng bộ để đếm số trang PDF và cập nhật postsCount
+        documentEventPublisher.publishPageCountEvent(saved.getId(), saved.getFileUrl(), saved.getUploaderId());
+
         return toSummaryDto(saved);
     }
 
@@ -220,12 +224,6 @@ public class DocumentServiceImpl implements DocumentService {
                 .build();
 
         DocumentEntity saved = documentRepository.save(entity);
-        if (uploaderId != null && !"anonymous".equals(uploaderId)) {
-            userRepository.findById(uploaderId).ifPresent(user -> {
-                user.setPostsCount((user.getPostsCount() != null ? user.getPostsCount() : 0) + 1);
-                userRepository.save(user);
-            });
-        }
         return toSummaryDto(saved);
     }
 
@@ -242,16 +240,9 @@ public class DocumentServiceImpl implements DocumentService {
             if (existingInteractionOpt.isPresent()) {
                 // Toggle off (Unlike / Undislike)
                 documentInteractionRepository.delete(existingInteractionOpt.get());
-                if ("LIKE".equalsIgnoreCase(type)) {
-                    int current = doc.getLikeCount() != null ? doc.getLikeCount() : 0;
-                    doc.setLikeCount(Math.max(0, current - 1));
-                    
-                    userRepository.findById(userId).ifPresent(user -> {
-                        int userLikes = user.getLikesCount() != null ? user.getLikesCount() : 0;
-                        user.setLikesCount(Math.max(0, userLikes - 1));
-                        userRepository.save(user);
-                    });
-                }
+                
+                // Publish sự kiện bỏ tương tác
+                documentEventPublisher.publishInteractionEvent(documentId, userId, type.toUpperCase(), false);
             } else {
                 // Toggle on (Like / Dislike)
                 DocumentInteractionEntity interaction = DocumentInteractionEntity.builder()
@@ -261,42 +252,36 @@ public class DocumentServiceImpl implements DocumentService {
                         .build();
                 documentInteractionRepository.save(interaction);
                 
-                if ("LIKE".equalsIgnoreCase(type)) {
-                    doc.setLikeCount((doc.getLikeCount() != null ? doc.getLikeCount() : 0) + 1);
-                    
-                    userRepository.findById(userId).ifPresent(user -> {
-                        user.setLikesCount((user.getLikesCount() != null ? user.getLikesCount() : 0) + 1);
-                        userRepository.save(user);
-                    });
-                }
+                // Publish sự kiện tương tác
+                documentEventPublisher.publishInteractionEvent(documentId, userId, type.toUpperCase(), true);
             }
             documentRepository.save(doc);
         }
     }
 
     private DocumentSummaryDto toSummaryDto(DocumentEntity doc) {
-        String schoolName = "Đại học Quốc Gia";
+        String schoolName = null;
         if (doc.getUniversityId() != null) {
             schoolName = universityRepository.findById(doc.getUniversityId())
                     .map(UniversityEntity::getName)
-                    .orElse("Đại học Quốc Gia");
+                    .orElse(null);
         }
 
-        String uploaderName = "Admin User";
+        String uploaderName = null;
         if (doc.getUploaderId() != null) {
             uploaderName = userRepository.findById(doc.getUploaderId())
                     .map(UserEntity::getFullName)
-                    .orElse("Admin User");
+                    .orElse(null);
         }
 
-        String category = "Chung";
+        String category = null;
         if (doc.getSubjectId() != null) {
             category = subjectRepository.findById(doc.getSubjectId())
                     .map(SubjectEntity::getName)
-                    .orElse("Chung");
+                    .orElse(null);
         }
 
-        String thumbnail = doc.getFileUrl() != null ? doc.getFileUrl() : "https://via.placeholder.com/150";
+        String thumbnail = doc.getFileUrl();
         String statusStr = doc.getStatus() != null ? doc.getStatus().name() : DocumentStatus.COMPLETED.name();
 
         boolean isLiked = false;
@@ -320,17 +305,17 @@ public class DocumentServiceImpl implements DocumentService {
                 .thumbnail(thumbnail)
                 .category(category)
                 .school(schoolName)
-                .pageCount(15) // Keep hardcoded as it requires PDF parsing
-                .year(doc.getSchoolYear() != null ? doc.getSchoolYear() : "2024")
+                .pageCount(doc.getPageCount())
+                .year(doc.getSchoolYear())
                 .universityId(doc.getUniversityId())
                 .universityName(schoolName)
                 .facultyId(doc.getFacultyId())
                 .departmentId(doc.getDepartmentId())
                 .subjectId(doc.getSubjectId())
-                .likeCount(doc.getLikeCount() != null ? doc.getLikeCount() : 0)
-                .commentCount(doc.getCommentCount() != null ? doc.getCommentCount() : 0)
-                .downloadCount(doc.getDownloadCount() != null ? doc.getDownloadCount() : 0)
-                .viewCount(doc.getViewCount() != null ? doc.getViewCount() : 0)
+                .likeCount(doc.getLikeCount())
+                .commentCount(doc.getCommentCount())
+                .downloadCount(doc.getDownloadCount())
+                .viewCount(doc.getViewCount())
                 .isLiked(isLiked)
                 .isBookmarked(isBookmarked)
                 .isPublic(doc.getIsPublic())

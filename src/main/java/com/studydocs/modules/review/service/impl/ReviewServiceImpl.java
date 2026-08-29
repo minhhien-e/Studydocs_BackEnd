@@ -10,6 +10,7 @@ import com.studydocs.modules.user.repository.UserRepository;
 import com.studydocs.modules.user.entity.UserEntity;
 import com.studydocs.shared.exception.AppException;
 import com.studydocs.shared.exception.ErrorCode;
+import com.studydocs.modules.review.event.publisher.ReviewEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final ReviewEventPublisher reviewEventPublisher;
 
     @Override
     public List<ReviewDto> getReviewsByDocument(String documentId) {
@@ -50,17 +52,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         review = reviewRepository.save(review);
         
-        documentRepository.findById(documentId).ifPresent(doc -> {
-            doc.setCommentCount((doc.getCommentCount() != null ? doc.getCommentCount() : 0) + 1);
-            documentRepository.save(doc);
-        });
-        
-        if (userId != null && !"anonymous".equals(userId)) {
-            userRepository.findById(userId).ifPresent(user -> {
-                user.setCommentsCount((user.getCommentsCount() != null ? user.getCommentsCount() : 0) + 1);
-                userRepository.save(user);
-            });
-        }
+        // Publish event để cập nhật số lượng comment bất đồng bộ
+        reviewEventPublisher.publishReviewEvent(documentId, userId, true);
         
         return toDto(review);
     }
@@ -82,19 +75,8 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_FOUND));
         reviewRepository.delete(review);
         
-        documentRepository.findById(review.getDocumentId()).ifPresent(doc -> {
-            int currentCount = doc.getCommentCount() != null ? doc.getCommentCount() : 0;
-            doc.setCommentCount(Math.max(0, currentCount - 1));
-            documentRepository.save(doc);
-        });
-        
-        if (review.getUserId() != null && !"anonymous".equals(review.getUserId())) {
-            userRepository.findById(review.getUserId()).ifPresent(user -> {
-                int currentComments = user.getCommentsCount() != null ? user.getCommentsCount() : 0;
-                user.setCommentsCount(Math.max(0, currentComments - 1));
-                userRepository.save(user);
-            });
-        }
+        // Publish event để cập nhật số lượng comment bất đồng bộ
+        reviewEventPublisher.publishReviewEvent(review.getDocumentId(), review.getUserId(), false);
     }
 
     @Override
@@ -109,12 +91,12 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     private ReviewDto toDto(DocumentReviewEntity r) {
-        String[] userInfo = {"Anonymous", "https://ui-avatars.com/api/?name=User"};
+        String[] userInfo = {null, null};
         
         if (r.getUserId() != null && !r.getUserId().equals("anonymous")) {
             userRepository.findById(r.getUserId()).ifPresent(user -> {
-                userInfo[0] = user.getFullName() != null ? user.getFullName() : "Anonymous";
-                userInfo[1] = user.getAvatarUrl() != null ? user.getAvatarUrl() : "https://ui-avatars.com/api/?name=" + userInfo[0];
+                userInfo[0] = user.getFullName();
+                userInfo[1] = user.getAvatarUrl();
             });
         }
         

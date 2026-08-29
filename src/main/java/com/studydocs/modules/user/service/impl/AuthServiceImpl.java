@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService {
         Set<String> roleNames = user.getRoles() != null ?
                 user.getRoles().stream().map(RoleEntity::getName).collect(Collectors.toSet()) : Collections.emptySet();
 
-        String school = user.getUniversityName() != null ? user.getUniversityName() : "Đại học Bách Khoa TP.HCM";
+        String school = user.getUniversityName();
 
         UserDto userDto = UserDto.builder()
                 .id(user.getId())
@@ -120,11 +120,11 @@ public class AuthServiceImpl implements AuthService {
                 .facultyId(user.getFacultyId())
                 .major(user.getMajor())
                 .isPrivate(user.getIsPrivate())
-                .followersCount(12)
-                .followingCount(5)
-                .likesCount(30)
-                .postsCount(4)
-                .commentsCount(8)
+                .followersCount(user.getFollowersCount())
+                .followingCount(user.getFollowingCount())
+                .likesCount(user.getLikesCount())
+                .postsCount(user.getPostsCount())
+                .commentsCount(user.getCommentsCount())
                 .roles(roleNames)
                 .build();
 
