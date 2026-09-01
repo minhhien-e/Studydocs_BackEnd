@@ -48,8 +48,9 @@ public class DocumentEntity extends BaseEntity {
     @Column(name = "department_id")
     private Long departmentId;
 
-    @Column(name = "school_year", length = 20)
-    private String schoolYear;
+    @Column(name = "school_year", length = 20, columnDefinition = "varchar(20) default ''")
+    @Builder.Default
+    private String schoolYear = "";
 
     @Column(name = "status", length = 30)
     @Enumerated(EnumType.STRING)

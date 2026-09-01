@@ -44,14 +44,16 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<DocumentSummaryDto> getMostLiked(int limit) {
-        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByLikeCountDesc(DocumentStatus.COMPLETED).stream()
+        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByLikeCountDesc(DocumentStatus.COMPLETED)
+                .stream()
                 .map(this::toSummaryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<DocumentSummaryDto> getNewest(int limit) {
-        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByCreatedAtDesc(DocumentStatus.COMPLETED).stream()
+        return documentRepository.findTop10ByIsPublicTrueAndStatusOrderByCreatedAtDesc(DocumentStatus.COMPLETED)
+                .stream()
                 .map(this::toSummaryDto)
                 .collect(Collectors.toList());
     }
@@ -59,8 +61,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentSummaryDto getDocumentById(String id) {
         DocumentEntity doc = documentRepository.findById(id)
-                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
-        
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(
+                        com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
+
         doc.setViewCount((doc.getViewCount() != null ? doc.getViewCount() : 0) + 1);
         documentRepository.save(doc);
         return toSummaryDto(doc);
@@ -97,7 +100,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public AcademicDtos.DocumentInitiateResponse initiateDocumentUpload(AcademicDtos.InitiateDocumentUploadRequest request, String uploaderId) {
+    public AcademicDtos.DocumentInitiateResponse initiateDocumentUpload(
+            AcademicDtos.InitiateDocumentUploadRequest request, String uploaderId) {
         String mediaId = UUID.randomUUID().toString();
         String uploadUrl = "/api/v1/media/" + mediaId + "/complete-upload";
 
@@ -137,9 +141,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentSummaryDto completeDocumentUpload(String documentId, AcademicDtos.CompleteDocumentUploadRequest request) {
+    public DocumentSummaryDto completeDocumentUpload(String documentId,
+            AcademicDtos.CompleteDocumentUploadRequest request) {
         DocumentEntity doc = documentRepository.findById(documentId)
-                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
+                .orElseThrow(() -> new com.studydocs.shared.exception.AppException(
+                        com.studydocs.shared.exception.ErrorCode.DOCUMENT_NOT_FOUND));
 
         String resolvedFileUrl = request.getFileUrl();
         if (resolvedFileUrl == null || resolvedFileUrl.trim().isEmpty()) {
@@ -165,14 +171,16 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId, Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId) {
-        SystemDtos.MediaResponse mediaResponse = mediaService.uploadFile(file, uploaderId != null ? uploaderId : "anonymous");
+    public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId,
+            Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId) {
+        SystemDtos.MediaResponse mediaResponse = mediaService.uploadFile(file,
+                uploaderId != null ? uploaderId : "anonymous");
         String fileUrl = mediaResponse.getFileUrl();
         Long fileSize = file != null ? file.getSize() : 0L;
         String fileType = file != null ? file.getContentType() : "application/pdf";
 
-        String docTitle = (title != null && !title.trim().isEmpty()) 
-                ? title 
+        String docTitle = (title != null && !title.trim().isEmpty())
+                ? title
                 : (file != null ? file.getOriginalFilename() : "Untitled Document");
 
         DocumentEntity entity = DocumentEntity.builder()
@@ -229,18 +237,19 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void handleInteraction(String documentId, String type, String userId) {
-        if ("anonymous".equals(userId)) return;
-        
+        if ("anonymous".equals(userId))
+            return;
+
         Optional<DocumentEntity> docOpt = documentRepository.findById(documentId);
         if (docOpt.isPresent()) {
             DocumentEntity doc = docOpt.get();
-            Optional<DocumentInteractionEntity> existingInteractionOpt = 
-                documentInteractionRepository.findByDocumentIdAndUserIdAndType(documentId, userId, type);
-                
+            Optional<DocumentInteractionEntity> existingInteractionOpt = documentInteractionRepository
+                    .findByDocumentIdAndUserIdAndType(documentId, userId, type);
+
             if (existingInteractionOpt.isPresent()) {
                 // Toggle off (Unlike / Undislike)
                 documentInteractionRepository.delete(existingInteractionOpt.get());
-                
+
                 // Publish sự kiện bỏ tương tác
                 documentEventPublisher.publishInteractionEvent(documentId, userId, type.toUpperCase(), false);
             } else {
@@ -251,7 +260,7 @@ public class DocumentServiceImpl implements DocumentService {
                         .type(type.toUpperCase())
                         .build();
                 documentInteractionRepository.save(interaction);
-                
+
                 // Publish sự kiện tương tác
                 documentEventPublisher.publishInteractionEvent(documentId, userId, type.toUpperCase(), true);
             }
@@ -289,8 +298,10 @@ public class DocumentServiceImpl implements DocumentService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             String currentUserId = auth.getName();
-            isLiked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId, "LIKE");
-            isBookmarked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId, "BOOKMARK");
+            isLiked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId,
+                    "LIKE");
+            isBookmarked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId,
+                    "BOOKMARK");
         }
 
         return DocumentSummaryDto.builder()
