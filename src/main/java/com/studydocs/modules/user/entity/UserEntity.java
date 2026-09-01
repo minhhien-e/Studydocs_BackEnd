@@ -63,7 +63,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "major")
     private String major;
 
-    @Column(name = "is_private")
+    @Column(name = "is_private", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isPrivate = false;
 
@@ -76,23 +76,23 @@ public class UserEntity extends BaseEntity {
     @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
 
-    @Column(name = "posts_count")
+    @Column(name = "posts_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer postsCount = 0;
 
-    @Column(name = "likes_count")
+    @Column(name = "likes_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer likesCount = 0;
 
-    @Column(name = "comments_count")
+    @Column(name = "comments_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer commentsCount = 0;
 
-    @Column(name = "followers_count")
+    @Column(name = "followers_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer followersCount = 0;
 
-    @Column(name = "following_count")
+    @Column(name = "following_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer followingCount = 0;
 }

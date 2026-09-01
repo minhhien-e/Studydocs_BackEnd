@@ -170,8 +170,8 @@ ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 INSERT INTO `documents` (
     `id`, `title`, `description`, `file_url`, `file_size`, `file_type`, 
     `uploader_id`, `university_id`, `faculty_id`, `subject_id`, 
-    `like_count`, `download_count`, `view_count`, `is_public`, `created_at`, `updated_at`
+    `like_count`, `download_count`, `view_count`, `comment_count`, `page_count`, `is_public`, `created_at`, `updated_at`
 ) VALUES
-('doc-001', 'Giáo trình Nhập môn Lập trình Java 17', 'Bài giảng chi tiết về ngôn ngữ Java, OOP và Spring Boot Framework.', 'https://example.com/java-tutorial.pdf', 1024500, 'pdf', 'usr-admin-001', 1, 1, 1, 45, 120, 530, 1, NOW(), NOW()),
-('doc-002', 'Đề thi và Đáp án Cấu trúc Dữ liệu 2023', 'Bộ đề thi giữa kỳ và cuối kỳ môn Cấu trúc dữ liệu có lời giải.', 'https://example.com/dsa-exam-2023.pdf', 2048000, 'pdf', 'usr-user-002', 1, 1, 2, 30, 85, 410, 1, NOW(), NOW())
+('doc-001', 'Giáo trình Nhập môn Lập trình Java 17', 'Bài giảng chi tiết về ngôn ngữ Java, OOP và Spring Boot Framework.', 'https://example.com/java-tutorial.pdf', 1024500, 'pdf', 'usr-admin-001', 1, 1, 1, 45, 120, 530, 5, 150, 1, NOW(), NOW()),
+('doc-002', 'Đề thi và Đáp án Cấu trúc Dữ liệu 2023', 'Bộ đề thi giữa kỳ và cuối kỳ môn Cấu trúc dữ liệu có lời giải.', 'https://example.com/dsa-exam-2023.pdf', 2048000, 'pdf', 'usr-user-002', 1, 1, 2, 30, 85, 410, 2, 20, 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE `title` = VALUES(`title`);

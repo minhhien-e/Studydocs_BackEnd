@@ -26,8 +26,9 @@ public class DocumentEntity extends BaseEntity {
     @Column(name = "file_url", length = 1000)
     private String fileUrl;
 
-    @Column(name = "file_size")
-    private Long fileSize;
+    @Column(name = "file_size", nullable = false, columnDefinition = "bigint default 0")
+    @Builder.Default
+    private Long fileSize = 0L;
 
     @Column(name = "file_type", length = 50)
     private String fileType;
@@ -55,26 +56,27 @@ public class DocumentEntity extends BaseEntity {
     @Builder.Default
     private DocumentStatus status = DocumentStatus.PENDING;
 
-    @Column(name = "like_count")
+    @Column(name = "like_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer likeCount = 0;
 
-    @Column(name = "download_count")
+    @Column(name = "download_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer downloadCount = 0;
 
-    @Column(name = "view_count")
+    @Column(name = "view_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer viewCount = 0;
 
-    @Column(name = "comment_count")
+    @Column(name = "comment_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer commentCount = 0;
 
-    @Column(name = "is_public")
+    @Column(name = "is_public", nullable = false, columnDefinition = "boolean default true")
     @Builder.Default
     private Boolean isPublic = true;
 
-    @Column(name = "page_count")
-    private Integer pageCount;
+    @Column(name = "page_count", nullable = false, columnDefinition = "integer default 0")
+    @Builder.Default
+    private Integer pageCount = 0;
 }

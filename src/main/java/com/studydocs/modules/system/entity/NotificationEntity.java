@@ -26,7 +26,7 @@ public class NotificationEntity extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String content;
 
-    @Column(name = "is_read")
+    @Column(name = "is_read", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isRead = false;
 }
