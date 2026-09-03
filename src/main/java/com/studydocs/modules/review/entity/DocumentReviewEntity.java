@@ -28,4 +28,7 @@ public class DocumentReviewEntity extends BaseEntity {
 
     @Column(length = 1000)
     private String comment;
+
+    @Column(name = "parent_id")
+    private String parentId;
 }

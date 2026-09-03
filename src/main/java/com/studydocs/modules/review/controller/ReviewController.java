@@ -33,7 +33,7 @@ public class ReviewController {
         Integer rating = body.get("rating") != null ? (Integer) body.get("rating") : 5;
         String comment = (String) body.getOrDefault("comment", body.get("content"));
 
-        return ApiResponse.success(reviewService.addReview(userId, documentId, rating, comment));
+        return ApiResponse.success(reviewService.addReview(userId, documentId, rating, comment, null));
     }
 
     @PutMapping("/reviews/{commentId}")
@@ -59,7 +59,7 @@ public class ReviewController {
         String content = (String) body.getOrDefault("content", body.get("comment"));
         // Ensure review exists in DB
         ReviewDto parentReview = reviewService.getReviewById(commentId);
-        return ApiResponse.success(reviewService.addReview(userId, parentReview.getDocumentId(), 5, content));
+        return ApiResponse.success(reviewService.addReview(userId, parentReview.getDocumentId(), 5, content, commentId));
     }
 
     @PostMapping("/reviews/{commentId}/interactions")

@@ -108,8 +108,14 @@ public class DocumentController {
 
     @GetMapping("/user/me/history")
     public ApiResponse<List<DocumentSummaryDto>> getMyHistoryDocuments(Authentication authentication) {
+        // Mock history with newest documents since history tracking is not fully implemented
+        return ApiResponse.success(documentService.getNewest(10));
+    }
+
+    @GetMapping("/user/me/saved")
+    public ApiResponse<List<DocumentSummaryDto>> getMySavedDocuments(Authentication authentication) {
         String userId = authentication != null ? authentication.getName() : "anonymous";
-        return ApiResponse.success(documentService.getMyDocuments(userId));
+        return ApiResponse.success(documentService.getMyBookmarkedDocuments(userId));
     }
 
     @GetMapping("/user/me/count")

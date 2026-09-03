@@ -23,31 +23,37 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public SystemDtos.MediaResponse uploadFile(MultipartFile file, String ownerId) {
+        String fileUrl;
+        String storedFileName;
+
         try {
+            // Try uploading to Cloudinary
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            String fileUrl = uploadResult.get("url").toString();
-            String storedFileName = uploadResult.get("public_id").toString();
-
-            MediaAssetEntity asset = MediaAssetEntity.builder()
-                    .fileName(storedFileName)
-                    .fileUrl(fileUrl)
-                    .contentType(file.getContentType())
-                    .fileSize(file.getSize())
-                    .ownerId(ownerId)
-                    .build();
-
-            asset = mediaAssetRepository.save(asset);
-
-            return SystemDtos.MediaResponse.builder()
-                    .id(asset.getId())
-                    .fileName(asset.getFileName())
-                    .fileUrl(asset.getFileUrl())
-                    .contentType(asset.getContentType())
-                    .fileSize(asset.getFileSize())
-                    .build();
+            fileUrl = uploadResult.get("url").toString();
+            storedFileName = uploadResult.get("public_id").toString();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to upload file to Cloudinary", e);
+            // Fallback to local storage if Cloudinary is disabled or fails
+            storedFileName = fileStorageService.storeFile(file);
+            fileUrl = "/api/v1/media/files/" + storedFileName;
         }
+
+        MediaAssetEntity asset = MediaAssetEntity.builder()
+                .fileName(storedFileName)
+                .fileUrl(fileUrl)
+                .contentType(file.getContentType())
+                .fileSize(file.getSize())
+                .ownerId(ownerId)
+                .build();
+
+        asset = mediaAssetRepository.save(asset);
+
+        return SystemDtos.MediaResponse.builder()
+                .id(asset.getId())
+                .fileName(asset.getFileName())
+                .fileUrl(asset.getFileUrl())
+                .contentType(asset.getContentType())
+                .fileSize(asset.getFileSize())
+                .build();
     }
 
     @Override

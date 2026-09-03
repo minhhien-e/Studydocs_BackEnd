@@ -13,6 +13,7 @@ public interface DocumentService {
     DocumentSummaryDto getDocumentById(String id);
     List<DocumentSummaryDto> searchDocuments(String query);
     List<DocumentSummaryDto> getMyDocuments(String userId);
+    List<DocumentSummaryDto> getMyBookmarkedDocuments(String userId);
     Map<String, Long> getMyDocumentCount(String userId);
     void incrementDownloadCount(String documentId);
     AcademicDtos.DocumentInitiateResponse initiateDocumentUpload(AcademicDtos.InitiateDocumentUploadRequest request, String uploaderId);

@@ -84,6 +84,13 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public List<DocumentSummaryDto> getMyBookmarkedDocuments(String userId) {
+        return documentRepository.findBookmarkedByUserId(userId).stream()
+                .map(this::toSummaryDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Map<String, Long> getMyDocumentCount(String userId) {
         long count = documentRepository.findByUploaderId(userId).size();
         return Map.of("count", count);

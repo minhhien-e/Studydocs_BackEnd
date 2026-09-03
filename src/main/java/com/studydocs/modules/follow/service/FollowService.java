@@ -5,6 +5,6 @@ import java.util.List;
 public interface FollowService {
     void followUser(String followerId, String targetUserId);
     void unfollowUser(String followerId, String targetUserId);
-    List<String> getFollowers(String userId);
-    List<String> getFollowing(String userId);
+    List<com.studydocs.modules.follow.dto.UserFollowDto> getFollowers(String userId, String currentUserId);
+    List<com.studydocs.modules.follow.dto.UserFollowDto> getFollowing(String userId, String currentUserId);
 }

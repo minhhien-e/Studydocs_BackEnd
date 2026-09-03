@@ -30,6 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public List<ReviewDto> getReviewsByDocument(String documentId) {
         return reviewRepository.findByDocumentId(documentId).stream()
+                .filter(r -> r.getParentId() == null) // Only top-level comments
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -42,12 +43,13 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public ReviewDto addReview(String userId, String documentId, Integer rating, String comment) {
+    public ReviewDto addReview(String userId, String documentId, Integer rating, String comment, String parentId) {
         DocumentReviewEntity review = DocumentReviewEntity.builder()
                 .userId(userId)
                 .documentId(documentId)
                 .rating(rating)
                 .comment(comment)
+                .parentId(parentId)
                 .build();
 
         review = reviewRepository.save(review);
@@ -85,7 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.REVIEW_NOT_FOUND);
         }
         return reviewRepository.findAll().stream()
-                .filter(r -> reviewId.equals(r.getDocumentId()))
+                .filter(r -> reviewId.equals(r.getParentId()))
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -100,6 +102,10 @@ public class ReviewServiceImpl implements ReviewService {
             });
         }
         
+        long replyCount = reviewRepository.findAll().stream()
+                .filter(child -> r.getId().equals(child.getParentId()))
+                .count();
+
         return ReviewDto.builder()
                 .id(r.getId())
                 .documentId(r.getDocumentId())
@@ -109,6 +115,9 @@ public class ReviewServiceImpl implements ReviewService {
                 .rating(r.getRating())
                 .comment(r.getComment())
                 .createdAt(r.getCreatedAt())
+                .parentId(r.getParentId())
+                .replyCount((int) replyCount)
+                .likeCount(0)
                 .build();
     }
 }

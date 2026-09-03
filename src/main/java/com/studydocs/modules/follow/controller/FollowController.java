@@ -37,14 +37,16 @@ public class FollowController {
     }
 
     @GetMapping({"/followers", "/follows/followers", "/{userId}/followers"})
-    public ApiResponse<List<String>> getFollowers(Authentication authentication, @PathVariable(required = false) String userId) {
-        String currentUserId = userId != null ? userId : (authentication != null ? authentication.getName() : "anonymous");
-        return ApiResponse.success(followService.getFollowers(currentUserId));
+    public ApiResponse<List<com.studydocs.modules.follow.dto.UserFollowDto>> getFollowers(Authentication authentication, @PathVariable(required = false) String userId) {
+        String currentUserId = authentication != null ? authentication.getName() : "anonymous";
+        String targetUserId = userId != null ? userId : currentUserId;
+        return ApiResponse.success(followService.getFollowers(targetUserId, currentUserId));
     }
 
     @GetMapping({"/following", "/follows/following", "/{userId}/following"})
-    public ApiResponse<List<String>> getFollowing(Authentication authentication, @PathVariable(required = false) String userId) {
-        String currentUserId = userId != null ? userId : (authentication != null ? authentication.getName() : "anonymous");
-        return ApiResponse.success(followService.getFollowing(currentUserId));
+    public ApiResponse<List<com.studydocs.modules.follow.dto.UserFollowDto>> getFollowing(Authentication authentication, @PathVariable(required = false) String userId) {
+        String currentUserId = authentication != null ? authentication.getName() : "anonymous";
+        String targetUserId = userId != null ? userId : currentUserId;
+        return ApiResponse.success(followService.getFollowing(targetUserId, currentUserId));
     }
 }
