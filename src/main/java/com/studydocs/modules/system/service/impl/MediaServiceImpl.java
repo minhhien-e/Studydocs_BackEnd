@@ -13,6 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MediaServiceImpl implements MediaService {
@@ -27,11 +30,12 @@ public class MediaServiceImpl implements MediaService {
         String storedFileName;
 
         try {
-            // Try uploading to Cloudinary
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            // Force resource_type to "image" so Cloudinary can process PDFs into thumbnails
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "image"));
             fileUrl = uploadResult.get("url").toString();
             storedFileName = uploadResult.get("public_id").toString();
         } catch (Exception e) {
+            log.error("Cloudinary upload failed: {}", e.getMessage(), e);
             // Fallback to local storage if Cloudinary is disabled or fails
             storedFileName = fileStorageService.storeFile(file);
             fileUrl = "/api/v1/media/files/" + storedFileName;

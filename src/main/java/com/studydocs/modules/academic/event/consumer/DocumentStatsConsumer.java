@@ -24,19 +24,20 @@ public class DocumentStatsConsumer {
     )
     @Transactional
     public void handleDocumentInteracted(DocumentInteractedEvent event) {
-        if (!"LIKE".equalsIgnoreCase(event.getType())) return;
-        
         String documentId = event.getDocumentId();
-        
+        String type = event.getType() != null ? event.getType().toUpperCase() : "";
+
         documentRepository.findById(documentId).ifPresent(doc -> {
-            int current = doc.getLikeCount() != null ? doc.getLikeCount() : 0;
-            if (event.isAdd()) {
-                doc.setLikeCount(current + 1);
-            } else {
-                doc.setLikeCount(Math.max(0, current - 1));
+            if ("LIKE".equals(type)) {
+                int current = doc.getLikeCount() != null ? doc.getLikeCount() : 0;
+                doc.setLikeCount(event.isAdd() ? current + 1 : Math.max(0, current - 1));
+                log.debug("[DocumentStats] Cập nhật likeCount cho document {}", documentId);
+            } else if ("DISLIKE".equals(type)) {
+                int current = doc.getDislikeCount() != null ? doc.getDislikeCount() : 0;
+                doc.setDislikeCount(event.isAdd() ? current + 1 : Math.max(0, current - 1));
+                log.debug("[DocumentStats] Cập nhật dislikeCount cho document {}", documentId);
             }
             documentRepository.save(doc);
-            log.debug("[DocumentStats] Cập nhật likeCount cho document {}", documentId);
         });
     }
 

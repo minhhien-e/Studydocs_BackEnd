@@ -260,6 +260,23 @@ public class DocumentServiceImpl implements DocumentService {
                 // Publish sự kiện bỏ tương tác
                 documentEventPublisher.publishInteractionEvent(documentId, userId, type.toUpperCase(), false);
             } else {
+                // Check if opposite interaction exists and remove it
+                String oppositeType = null;
+                if ("LIKE".equalsIgnoreCase(type)) {
+                    oppositeType = "DISLIKE";
+                } else if ("DISLIKE".equalsIgnoreCase(type)) {
+                    oppositeType = "LIKE";
+                }
+
+                if (oppositeType != null) {
+                    Optional<DocumentInteractionEntity> oppositeInteraction = documentInteractionRepository
+                            .findByDocumentIdAndUserIdAndType(documentId, userId, oppositeType);
+                    if (oppositeInteraction.isPresent()) {
+                        documentInteractionRepository.delete(oppositeInteraction.get());
+                        documentEventPublisher.publishInteractionEvent(documentId, userId, oppositeType, false);
+                    }
+                }
+
                 // Toggle on (Like / Dislike)
                 DocumentInteractionEntity interaction = DocumentInteractionEntity.builder()
                         .documentId(documentId)
@@ -297,18 +314,36 @@ public class DocumentServiceImpl implements DocumentService {
                     .orElse(null);
         }
 
-        String thumbnail = doc.getFileUrl();
+        String fileUrl = doc.getFileUrl();
+        String thumbnail = fileUrl;
+        if (fileUrl != null && fileUrl.contains("res.cloudinary.com") && fileUrl.toLowerCase().endsWith(".pdf")) {
+            // Replace /upload/ with /upload/pg_<<pageNumber>>/ and .pdf with .png
+            thumbnail = fileUrl.replaceFirst("/upload/", "/upload/pg_<<pageNumber>>/").replaceAll("(?i)\\.pdf$", ".png");
+        } else if (fileUrl != null && fileUrl.toLowerCase().endsWith(".pdf")) {
+            thumbnail = fileUrl.replaceAll("(?i)\\.pdf$", ".png");
+        }
         String statusStr = doc.getStatus() != null ? doc.getStatus().name() : DocumentStatus.COMPLETED.name();
 
         boolean isLiked = false;
+        boolean isDisliked = false;
         boolean isBookmarked = false;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             String currentUserId = auth.getName();
             isLiked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId,
                     "LIKE");
+            isDisliked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId,
+                    "DISLIKE");
             isBookmarked = documentInteractionRepository.existsByDocumentIdAndUserIdAndType(doc.getId(), currentUserId,
                     "BOOKMARK");
+        }
+
+        // Lấy avatar của người upload
+        String uploaderAvatarUrl = null;
+        if (doc.getUploaderId() != null) {
+            uploaderAvatarUrl = userRepository.findById(doc.getUploaderId())
+                    .map(u -> u.getAvatarUrl())
+                    .orElse(null);
         }
 
         return DocumentSummaryDto.builder()
@@ -320,6 +355,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .fileType(doc.getFileType())
                 .uploaderId(doc.getUploaderId())
                 .uploaderName(uploaderName)
+                .uploaderAvatarUrl(uploaderAvatarUrl)
                 .thumbnail(thumbnail)
                 .category(category)
                 .school(schoolName)
@@ -331,10 +367,12 @@ public class DocumentServiceImpl implements DocumentService {
                 .departmentId(doc.getDepartmentId())
                 .subjectId(doc.getSubjectId())
                 .likeCount(doc.getLikeCount())
+                .dislikeCount(doc.getDislikeCount())
                 .commentCount(doc.getCommentCount())
                 .downloadCount(doc.getDownloadCount())
                 .viewCount(doc.getViewCount())
                 .isLiked(isLiked)
+                .isDisliked(isDisliked)
                 .isBookmarked(isBookmarked)
                 .isPublic(doc.getIsPublic())
                 .status(statusStr)

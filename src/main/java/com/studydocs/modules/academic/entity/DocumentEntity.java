@@ -30,7 +30,7 @@ public class DocumentEntity extends BaseEntity {
     @Builder.Default
     private Long fileSize = 0L;
 
-    @Column(name = "file_type", length = 50)
+    @Column(name = "file_type", length = 200)
     private String fileType;
 
     @Column(name = "uploader_id", nullable = false)
@@ -60,6 +60,10 @@ public class DocumentEntity extends BaseEntity {
     @Column(name = "like_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
     private Integer likeCount = 0;
+
+    @Column(name = "dislike_count", nullable = false, columnDefinition = "integer default 0")
+    @Builder.Default
+    private Integer dislikeCount = 0;
 
     @Column(name = "download_count", nullable = false, columnDefinition = "integer default 0")
     @Builder.Default

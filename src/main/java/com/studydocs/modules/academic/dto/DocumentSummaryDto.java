@@ -20,6 +20,7 @@ public class DocumentSummaryDto {
     private String fileType;
     private String uploaderId;
     private String uploaderName;
+    private String uploaderAvatarUrl;
 
     // FE DocumentSummaryModel specific fields
     private String thumbnail;
@@ -52,6 +53,12 @@ public class DocumentSummaryDto {
 
     @Builder.Default
     private Boolean isLiked = false;
+
+    @Builder.Default
+    private Integer dislikeCount = 0;
+
+    @Builder.Default
+    private Boolean isDisliked = false;
 
     @Builder.Default
     private Boolean isBookmarked = false;
