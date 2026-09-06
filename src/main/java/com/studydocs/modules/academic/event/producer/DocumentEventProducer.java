@@ -71,4 +71,25 @@ public class DocumentEventProducer implements DocumentEventPublisher {
                     }
                 });
     }
+    @Override
+    public void publishNewDocumentNotification(String documentId, String documentTitle, String uploaderId) {
+        com.studydocs.shared.event.NotificationEvent event = com.studydocs.shared.event.NotificationEvent.builder()
+                .documentId(documentId)
+                .documentTitle(documentTitle)
+                .uploaderId(uploaderId)
+                .build();
+
+        kafkaTemplate.send(KafkaTopicConfig.NOTIFICATION_TOPIC, documentId, event)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("[Kafka Producer] Lỗi khi publish notification event cho documentId={}: {}",
+                                documentId, ex.getMessage());
+                    } else {
+                        log.info("[Kafka Producer] Đã publish notification event: documentId={}, topic={}, offset={}",
+                                documentId,
+                                result.getRecordMetadata().topic(),
+                                result.getRecordMetadata().offset());
+                    }
+                });
+    }
 }

@@ -37,4 +37,11 @@ public class NotificationServiceImpl implements NotificationService {
         n.setIsRead(true);
         notificationRepository.save(n);
     }
+
+    @Override
+    public void deleteNotification(String notificationId) {
+        if (notificationRepository.existsById(notificationId)) {
+            notificationRepository.deleteById(notificationId);
+        }
+    }
 }

@@ -12,10 +12,19 @@ public class KafkaTopicConfig {
     public static final String DOCUMENT_INTERACTED_TOPIC = "document-interacted-topic";
     public static final String REVIEW_TOPIC = "review-topic";
     public static final String USER_FOLLOW_TOPIC = "user-follow-topic";
+    public static final String NOTIFICATION_TOPIC = "notification-topic";
 
     @Bean
     public NewTopic documentPageCountTopic() {
         return TopicBuilder.name(DOCUMENT_PAGE_COUNT_TOPIC)
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic notificationTopic() {
+        return TopicBuilder.name(NOTIFICATION_TOPIC)
                 .partitions(3)
                 .replicas(1)
                 .build();

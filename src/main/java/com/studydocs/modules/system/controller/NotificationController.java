@@ -30,6 +30,7 @@ public class NotificationController {
 
     @DeleteMapping("/user/notifications/{id}")
     public ApiResponse<String> deleteNotification(@PathVariable String id) {
+        notificationService.deleteNotification(id);
         return ApiResponse.success("Notification deleted successfully");
     }
 }

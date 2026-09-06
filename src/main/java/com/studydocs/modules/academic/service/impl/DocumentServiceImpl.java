@@ -174,6 +174,9 @@ public class DocumentServiceImpl implements DocumentService {
         // Publish event bất đồng bộ để đếm số trang PDF và cập nhật postsCount
         documentEventPublisher.publishPageCountEvent(saved.getId(), saved.getFileUrl(), saved.getUploaderId());
 
+        // Publish event để thông báo cho những người theo dõi
+        documentEventPublisher.publishNewDocumentNotification(saved.getId(), saved.getTitle(), saved.getUploaderId());
+
         return toSummaryDto(saved);
     }
 
@@ -213,6 +216,9 @@ public class DocumentServiceImpl implements DocumentService {
 
         // Publish event bất đồng bộ để đếm số trang PDF và cập nhật postsCount
         documentEventPublisher.publishPageCountEvent(saved.getId(), saved.getFileUrl(), saved.getUploaderId());
+        
+        // Publish event để thông báo cho những người theo dõi
+        documentEventPublisher.publishNewDocumentNotification(saved.getId(), saved.getTitle(), saved.getUploaderId());
 
         return toSummaryDto(saved);
     }

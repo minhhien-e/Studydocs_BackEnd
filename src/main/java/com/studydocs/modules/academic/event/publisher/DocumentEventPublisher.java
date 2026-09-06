@@ -24,4 +24,13 @@ public interface DocumentEventPublisher {
      * @param isAdd      true nếu là thêm tương tác, false nếu là xóa
      */
     void publishInteractionEvent(String documentId, String userId, String type, boolean isAdd);
+
+    /**
+     * Publish event khi có tài liệu mới để gửi thông báo cho followers.
+     *
+     * @param documentId    ID của tài liệu
+     * @param documentTitle Tiêu đề tài liệu
+     * @param uploaderId    ID của người upload
+     */
+    void publishNewDocumentNotification(String documentId, String documentTitle, String uploaderId);
 }
