@@ -68,7 +68,7 @@ public class FollowServiceImpl implements FollowService {
     private UserFollowDto buildUserFollowDto(String targetUserId, String currentUserId) {
         return userRepository.findById(targetUserId).map(user -> {
             boolean isFollowing = false;
-            if (currentUserId != null && !currentUserId.equals("anonymous")) {
+            if (currentUserId != null && !currentUserId.equals("anonymous") && !currentUserId.equals("anonymousUser")) {
                 isFollowing = followRepository.existsByFollowerIdAndFollowingId(currentUserId, targetUserId);
             }
             return UserFollowDto.builder()

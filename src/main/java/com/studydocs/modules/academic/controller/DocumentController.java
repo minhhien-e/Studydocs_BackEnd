@@ -100,6 +100,11 @@ public class DocumentController {
         return ApiResponse.success(documentService.getMyDocuments(userId));
     }
 
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<DocumentSummaryDto>> getDocumentsByUser(@PathVariable String userId) {
+        return ApiResponse.success(documentService.getMyDocuments(userId));
+    }
+
     @GetMapping("/user/me/newest")
     public ApiResponse<List<DocumentSummaryDto>> getMyNewestDocuments(Authentication authentication) {
         String userId = authentication != null ? authentication.getName() : "anonymous";

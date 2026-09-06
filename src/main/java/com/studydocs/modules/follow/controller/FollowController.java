@@ -36,14 +36,14 @@ public class FollowController {
         return ApiResponse.success("Unfollowed user successfully");
     }
 
-    @GetMapping({"/followers", "/follows/followers", "/{userId}/followers"})
+    @GetMapping({"/followers", "/follows/followers", "/{userId}/followers", "/public/{userId}/followers"})
     public ApiResponse<List<com.studydocs.modules.follow.dto.UserFollowDto>> getFollowers(Authentication authentication, @PathVariable(required = false) String userId) {
         String currentUserId = authentication != null ? authentication.getName() : "anonymous";
         String targetUserId = userId != null ? userId : currentUserId;
         return ApiResponse.success(followService.getFollowers(targetUserId, currentUserId));
     }
 
-    @GetMapping({"/following", "/follows/following", "/{userId}/following"})
+    @GetMapping({"/following", "/follows/following", "/{userId}/following", "/public/{userId}/following"})
     public ApiResponse<List<com.studydocs.modules.follow.dto.UserFollowDto>> getFollowing(Authentication authentication, @PathVariable(required = false) String userId) {
         String currentUserId = authentication != null ? authentication.getName() : "anonymous";
         String targetUserId = userId != null ? userId : currentUserId;
