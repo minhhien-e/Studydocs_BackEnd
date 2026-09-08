@@ -19,15 +19,18 @@ graph LR
     K_Interact(("Kafka Topic: document-interacted"))
     K_Review(("Kafka Topic: review"))
     K_Follow(("Kafka Topic: user-follow"))
+    K_Notif(("Kafka Topic: notification"))
 
     %% Consumers (Workers xử lý logic ngầm)
     C_Pdf["Consumer: PdfPageCountConsumer<br/>Đếm số trang"]
     C_UserStats["Consumer: UserStatsConsumer<br/>Cập nhật User Stats"]
     C_DocStats["Consumer: DocumentStatsConsumer<br/>Cập nhật Document Stats"]
+    C_Notif["Consumer: NotificationConsumer<br/>Tạo Thông báo"]
 
     %% Databases
     DB_User[("Database: Users<br/>postsCount, likesCount...")]
     DB_Doc[("Database: Documents<br/>likeCount, commentCount...")]
+    DB_Notif[("Database: Notifications<br/>Bảng thông báo")]
 
     %% Triggers (Service -> Publisher)
     S_Doc -->|Gọi khi Upload/Tương tác| Pub_Doc
@@ -37,6 +40,7 @@ graph LR
     %% Publish (Publisher -> Kafka)
     Pub_Doc -->|DocumentUploadedEvent| K_Upload
     Pub_Doc -->|DocumentInteractedEvent| K_Interact
+    Pub_Doc -->|NotificationEvent| K_Notif
     Pub_Review -->|ReviewEvent| K_Review
     Pub_Follow -->|UserFollowEvent| K_Follow
 
@@ -46,16 +50,22 @@ graph LR
     
     K_Interact -.->|"Lắng nghe"| C_UserStats
     K_Interact -.->|"Lắng nghe"| C_DocStats
+    K_Interact -.->|"Lắng nghe"| C_Notif
     
     K_Review -.->|"Lắng nghe"| C_UserStats
     K_Review -.->|"Lắng nghe"| C_DocStats
+    K_Review -.->|"Lắng nghe"| C_Notif
     
     K_Follow -.->|"Lắng nghe"| C_UserStats
+    K_Follow -.->|"Lắng nghe"| C_Notif
+    
+    K_Notif -.->|"Lắng nghe"| C_Notif
 
     %% Save Data (Consumers -> DB)
     C_Pdf ==>|"Update pageCount"| DB_Doc
     C_UserStats ==>|"Update Stats"| DB_User
     C_DocStats ==>|"Update Stats"| DB_Doc
+    C_Notif ==>|"Tạo bản ghi"| DB_Notif
 
 
 ```

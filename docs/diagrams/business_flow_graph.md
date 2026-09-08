@@ -84,7 +84,19 @@ graph LR
     end
     
     %% ==========================================
-    %% 5. INFRASTRUCTURE & EXTERNAL
+    %% 5. SYSTEM DOMAIN (NOTIFICATIONS)
+    %% ==========================================
+    subgraph SystemDomain [System Domain]
+        API_Notif[NotificationController]
+        S_Notif[NotificationService]
+        DB_Notif[(NotificationRepository)]
+        
+        API_Notif --> S_Notif
+        S_Notif --> DB_Notif
+    end
+
+    %% ==========================================
+    %% 6. INFRASTRUCTURE & EXTERNAL
     %% ==========================================
     subgraph InfrastructureDomain [Infrastructure & External]
         S_Media["MediaService / Cloudinary"]
@@ -95,7 +107,7 @@ graph LR
     end
 
     %% ==========================================
-    %% 6. MESSAGE BROKER (KAFKA)
+    %% 7. MESSAGE BROKER (KAFKA)
     %% ==========================================
     subgraph MessageBroker [Message Broker]
         Topic_DocUpload(("Topic: document-page-count"))
