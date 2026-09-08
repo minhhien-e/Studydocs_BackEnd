@@ -45,24 +45,43 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     public ApiResponse<String> forgotPassword(@RequestBody Map<String, String> body) {
-        return ApiResponse.success("Password reset instructions sent to " + body.get("email"));
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.INVALID_REQUEST);
+        }
+        authService.forgotPassword(email);
+        return ApiResponse.success("OTP sent to " + email);
     }
 
-    @PostMapping("/google/login")
-    public ApiResponse<Map<String, String>> googleLogin() {
-        String googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-        return ApiResponse.success(Map.of(
-                "url", googleAuthUrl,
-                "authorizationUrl", googleAuthUrl,
-                "authorization_url", googleAuthUrl
-        ));
+    @PostMapping("/verify-reset-token")
+    public ApiResponse<String> verifyResetToken(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String token = body.get("token");
+        if (email == null || token == null || email.isBlank() || token.isBlank()) {
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.INVALID_REQUEST);
+        }
+        authService.verifyResetToken(email, token);
+        return ApiResponse.success("Token verified");
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<String> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String token = body.get("token");
+        String newPassword = body.get("newPassword");
+        if (email == null || token == null || newPassword == null || email.isBlank() || token.isBlank() || newPassword.isBlank()) {
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.INVALID_REQUEST);
+        }
+        authService.resetPassword(email, token, newPassword);
+        return ApiResponse.success("Password reset successfully");
     }
 
     @PostMapping("/google/callback")
     public ApiResponse<TokenResponseDto> googleCallback(@RequestBody Map<String, Object> body) {
-        LoginRequest.Login loginReq = new LoginRequest.Login();
-        loginReq.setEmail("admin@studydocs.com");
-        loginReq.setPassword("admin123");
-        return ApiResponse.success(authService.login(loginReq));
+        String idToken = (String) body.get("idToken");
+        if (idToken == null || idToken.isBlank()) {
+            throw new com.studydocs.shared.exception.AppException(com.studydocs.shared.exception.ErrorCode.INVALID_REQUEST);
+        }
+        return ApiResponse.success(authService.googleLogin(idToken));
     }
 }

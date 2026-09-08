@@ -70,8 +70,9 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<DocumentSummaryDto> searchDocuments(String query) {
-        return documentRepository.searchDocuments(query).stream()
+    public List<DocumentSummaryDto> searchDocuments(String query, int page, int pageSize) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page - 1, pageSize);
+        return documentRepository.searchDocuments(query, pageable).getContent().stream()
                 .map(this::toSummaryDto)
                 .collect(Collectors.toList());
     }
@@ -183,6 +184,19 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentSummaryDto uploadDocument(MultipartFile file, String title, String description, Long universityId,
             Long facultyId, Long departmentId, Long subjectId, String schoolYear, Boolean isPublic, String uploaderId) {
+        
+        int pageCount = 0;
+        if (file != null && ("application/pdf".equalsIgnoreCase(file.getContentType()) || 
+            (file.getOriginalFilename() != null && file.getOriginalFilename().toLowerCase().endsWith(".pdf")))) {
+            try (java.io.InputStream is = file.getInputStream();
+                 org.apache.pdfbox.pdmodel.PDDocument pdDoc = org.apache.pdfbox.Loader.loadPDF(is.readAllBytes())) {
+                pageCount = pdDoc.getNumberOfPages();
+            } catch (Exception e) {
+                // Log error but continue upload
+                System.err.println("Failed to read PDF page count before upload: " + e.getMessage());
+            }
+        }
+
         SystemDtos.MediaResponse mediaResponse = mediaService.uploadFile(file,
                 uploaderId != null ? uploaderId : "anonymous");
         String fileUrl = mediaResponse.getFileUrl();
@@ -207,6 +221,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .schoolYear(schoolYear)
                 .isPublic(isPublic != null ? isPublic : true)
                 .status(DocumentStatus.COMPLETED)
+                .pageCount(pageCount > 0 ? pageCount : null)
                 .likeCount(0)
                 .downloadCount(0)
                 .viewCount(0)
@@ -296,6 +311,17 @@ public class DocumentServiceImpl implements DocumentService {
             }
             documentRepository.save(doc);
         }
+    }
+
+    @Override
+    public void syncPageCounts() {
+        documentRepository.findAll().forEach(doc -> {
+            if (doc.getPageCount() == null || doc.getPageCount() == 0) {
+                if (doc.getFileUrl() != null && doc.getFileUrl().toLowerCase().endsWith(".pdf")) {
+                    documentEventPublisher.publishPageCountEvent(doc.getId(), doc.getFileUrl(), doc.getUploaderId());
+                }
+            }
+        });
     }
 
     private DocumentSummaryDto toSummaryDto(DocumentEntity doc) {

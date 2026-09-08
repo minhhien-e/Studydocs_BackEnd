@@ -70,8 +70,11 @@ public class DocumentController {
     }
 
     @GetMapping
-    public ApiResponse<List<DocumentSummaryDto>> getAllDocuments(@RequestParam(value = "q", required = false) String query) {
-        return ApiResponse.success(documentService.searchDocuments(query));
+    public ApiResponse<List<DocumentSummaryDto>> getAllDocuments(
+            @RequestParam(value = "q", required = false) String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return ApiResponse.success(documentService.searchDocuments(query, page, pageSize));
     }
 
     @GetMapping("/public/most-liked")
@@ -90,8 +93,11 @@ public class DocumentController {
     }
 
     @GetMapping("/search")
-    public ApiResponse<List<DocumentSummaryDto>> searchDocuments(@RequestParam(value = "q", required = false) String query) {
-        return ApiResponse.success(documentService.searchDocuments(query));
+    public ApiResponse<List<DocumentSummaryDto>> searchDocuments(
+            @RequestParam(value = "q", required = false) String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return ApiResponse.success(documentService.searchDocuments(query, page, pageSize));
     }
 
     @GetMapping("/user/me")

@@ -11,6 +11,7 @@ import com.studydocs.shared.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import com.studydocs.modules.system.service.MediaService;
 import com.studydocs.modules.system.dto.SystemDtos;
+import com.studydocs.modules.user.service.MailService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +27,51 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final MediaService mediaService;
+    private final MailService mailService;
+
+    @Override
+    @Transactional
+    public void requestUpdateEmail(String userId, String newEmail) {
+        if (userRepository.existsByEmail(newEmail)) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        user.setPendingEmail(newEmail);
+        user.setResetToken(otp);
+        user.setResetTokenExpiry(java.time.LocalDateTime.now().plusMinutes(15));
+        userRepository.save(user);
+
+        mailService.sendPasswordResetToken(newEmail, otp); // Resuing this method for sending OTP is fine, or we could add another
+    }
+
+    @Override
+    @Transactional
+    public void verifyAndUpdateEmail(String userId, String token) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (user.getResetToken() == null || !user.getResetToken().equals(token)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(java.time.LocalDateTime.now())) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        if (user.getPendingEmail() == null) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+
+        user.setEmail(user.getPendingEmail());
+        user.setPendingEmail(null);
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        userRepository.save(user);
+    }
 
     @Override
     public UserDto getCurrentUser(String userId) {

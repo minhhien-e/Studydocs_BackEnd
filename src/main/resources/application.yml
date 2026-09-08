@@ -41,10 +41,26 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "com.studydocs.*"
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+app:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    web-client-id: ${GOOGLE_WEB_CLIENT_ID}
+
 jwt:
-  secret: ${JWT_SECRET:studydocsSecretKeySuperLongAndSecureForJwtSigning1234567890}
-  expiration-ms: 86400000 # 24 hours
-  refresh-expiration-ms: 604800000 # 7 days
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
 
 file:
   upload-dir: ${UPLOAD_DIR:uploads}
@@ -58,5 +74,6 @@ cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:}
   api-key: ${CLOUDINARY_API_KEY:}
   api-secret: ${CLOUDINARY_API_SECRET:}
+  folder: ${CLOUDINARY_FOLDER:studydocs_uploads}
 
 

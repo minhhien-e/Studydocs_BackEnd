@@ -67,6 +67,15 @@ public class UserEntity extends BaseEntity {
     @Builder.Default
     private Boolean isPrivate = false;
 
+    @Column(name = "reset_token", length = 50)
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
+
+    @Column(name = "pending_email", length = 100)
+    private String pendingEmail;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

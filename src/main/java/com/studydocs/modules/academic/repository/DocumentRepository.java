@@ -19,5 +19,5 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, String
     List<DocumentEntity> findBookmarkedByUserId(@Param("userId") String userId);
 
     @Query("SELECT d FROM DocumentEntity d WHERE d.isPublic = true AND d.status = com.studydocs.modules.academic.entity.DocumentStatus.COMPLETED AND (:q IS NULL OR LOWER(d.title) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(d.description) LIKE LOWER(CONCAT('%', :q, '%')))")
-    List<DocumentEntity> searchDocuments(@Param("q") String query);
+    org.springframework.data.domain.Page<DocumentEntity> searchDocuments(@Param("q") String query, org.springframework.data.domain.Pageable pageable);
 }

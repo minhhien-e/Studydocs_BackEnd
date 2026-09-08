@@ -29,4 +29,17 @@ public class NotificationEntity extends BaseEntity {
     @Column(name = "is_read", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isRead = false;
+
+    @Column(name = "type", length = 50)
+    private String type; // e.g. LIKE, COMMENT, FOLLOW, SYSTEM
+
+    @Column(name = "sender_id")
+    private String senderId;
+
+    @Column(name = "reference_id")
+    private String referenceId;
+
+    @Column(name = "is_trashed", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean isTrashed = false;
 }

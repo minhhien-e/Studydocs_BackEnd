@@ -68,8 +68,17 @@ public class AcademicController {
     }
 
     @GetMapping("/documents")
-    public ApiResponse<List<DocumentSummaryDto>> getAcademicDocuments(@RequestParam(value = "q", required = false) String query) {
-        return ApiResponse.success(documentService.searchDocuments(query));
+    public ApiResponse<List<DocumentSummaryDto>> getAcademicDocuments(
+            @RequestParam(value = "q", required = false) String query,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        return ApiResponse.success(documentService.searchDocuments(query, page, pageSize));
+    }
+
+    @PostMapping("/public/sync-pages")
+    public ApiResponse<String> syncPageCounts() {
+        documentService.syncPageCounts();
+        return ApiResponse.success("Đã gửi yêu cầu đồng bộ số trang cho tất cả các tài liệu (chạy ngầm).");
     }
 
     @PostMapping("/universities")

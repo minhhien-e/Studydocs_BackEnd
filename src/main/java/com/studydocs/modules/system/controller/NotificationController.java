@@ -33,4 +33,28 @@ public class NotificationController {
         notificationService.deleteNotification(id);
         return ApiResponse.success("Notification deleted successfully");
     }
+    @GetMapping("/user/notifications/trash")
+    public ApiResponse<List<SystemDtos.NotificationResponse>> getTrashedNotifications(Authentication authentication) {
+        String userId = authentication != null ? authentication.getName() : "anonymous";
+        return ApiResponse.success(notificationService.getTrashedNotifications(userId));
+    }
+
+    @PutMapping("/user/notifications/{id}/restore")
+    public ApiResponse<String> restoreNotification(@PathVariable String id) {
+        notificationService.restoreNotification(id);
+        return ApiResponse.success("Notification restored successfully");
+    }
+
+    @DeleteMapping("/user/notifications/{id}/hard-delete")
+    public ApiResponse<String> hardDeleteNotification(@PathVariable String id) {
+        notificationService.hardDeleteNotification(id);
+        return ApiResponse.success("Notification permanently deleted");
+    }
+
+    @DeleteMapping("/user/notifications/trash")
+    public ApiResponse<String> emptyTrash(Authentication authentication) {
+        String userId = authentication != null ? authentication.getName() : "anonymous";
+        notificationService.emptyTrash(userId);
+        return ApiResponse.success("Trash emptied successfully");
+    }
 }

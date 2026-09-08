@@ -59,4 +59,17 @@ public class LoginRequest {
         private String major;
         private Boolean isPrivate;
     }
+
+    @Data
+    public static class UpdateEmailRequest {
+        @Email(message = "INVALID_REQUEST")
+        @NotBlank(message = "INVALID_REQUEST")
+        private String email;
+    }
+
+    @Data
+    public static class UpdateEmailVerify {
+        @NotBlank(message = "INVALID_REQUEST")
+        private String token;
+    }
 }

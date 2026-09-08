@@ -8,5 +8,11 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<NotificationEntity, String> {
-    List<NotificationEntity> findByRecipientIdOrderByCreatedAtDesc(String recipientId);
+    List<NotificationEntity> findByRecipientIdAndIsTrashedFalseOrderByCreatedAtDesc(String recipientId);
+    
+    List<NotificationEntity> findByRecipientIdAndIsTrashedTrueOrderByCreatedAtDesc(String recipientId);
+    
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    void deleteByRecipientIdAndTypeAndReferenceId(String recipientId, String type, String referenceId);
 }

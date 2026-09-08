@@ -31,6 +31,10 @@ public class SystemDtos {
         private String title;
         private String content;
         private Boolean isRead;
+        private String type;
+        private String senderId;
+        private String referenceId;
+        private Boolean isTrashed;
         private LocalDateTime createdAt;
     }
 }

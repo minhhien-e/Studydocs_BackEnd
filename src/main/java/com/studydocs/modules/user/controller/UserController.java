@@ -38,6 +38,20 @@ public class UserController {
         return ApiResponse.success(userService.updateProfileImage(userId, file));
     }
 
+    @PostMapping("/me/update-email/request")
+    public ApiResponse<String> requestUpdateEmail(Authentication authentication, @RequestBody @jakarta.validation.Valid LoginRequest.UpdateEmailRequest request) {
+        String userId = authentication.getName();
+        userService.requestUpdateEmail(userId, request.getEmail());
+        return ApiResponse.success("OTP has been sent to the new email");
+    }
+
+    @PostMapping("/me/update-email/verify")
+    public ApiResponse<String> verifyAndUpdateEmail(Authentication authentication, @RequestBody @jakarta.validation.Valid LoginRequest.UpdateEmailVerify request) {
+        String userId = authentication.getName();
+        userService.verifyAndUpdateEmail(userId, request.getToken());
+        return ApiResponse.success("Email updated successfully");
+    }
+
     @GetMapping({"/{userId}", "/{userId}/other", "/public/profile/{userId}"})
     public ApiResponse<UserDto> getUserProfile(@PathVariable String userId) {
         return ApiResponse.success(userService.getUserById(userId));

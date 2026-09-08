@@ -12,4 +12,6 @@ public interface UserService {
     UserDto updateProfile(String userId, LoginRequest.UpdateProfile request);
     UserDto updateProfileImage(String userId, MultipartFile file);
     List<UserDto> searchUsers(String query);
+    void requestUpdateEmail(String userId, String newEmail);
+    void verifyAndUpdateEmail(String userId, String token);
 }
